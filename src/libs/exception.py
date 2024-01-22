@@ -9,3 +9,9 @@ class DBConnectionError(CustomHttpException):
     def __init__(self, code: int, message: str, err: Exception) -> None:
         super().__init__(code, message)
         self.error = err
+
+
+class DBProcessError(CustomHttpException):
+    def __init__(self, code: int, message: str, err: Exception) -> None:
+        super().__init__(code, message)
+        self.error = err

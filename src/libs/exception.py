@@ -1,17 +1,14 @@
 class CustomHttpException(Exception):
-    def __init__(self, code: int, message: str) -> None:
+    def __init__(self, code: int, message: str, log: str) -> None:
         self.code = code
         self.message = message
+        self.log = log
         self.error = None
 
 
-class DBConnectionError(CustomHttpException):
-    def __init__(self, code: int, message: str, err: Exception) -> None:
-        super().__init__(code, message)
-        self.error = err
-
-
-class DBProcessError(CustomHttpException):
-    def __init__(self, code: int, message: str, err: Exception) -> None:
-        super().__init__(code, message)
+class DBError(CustomHttpException):
+    def __init__(
+            self, code: int, message: str, log: str, err: Exception
+            ) -> None:
+        super().__init__(code, message, log)
         self.error = err

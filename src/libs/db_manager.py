@@ -1,6 +1,7 @@
 import pymongo
 from . import conf
-from .exception import DBConnectionError
+from .exception import DBError
+from .error_code import DBErrorCode
 
 
 class MongoManager:
@@ -13,4 +14,4 @@ class MongoManager:
             self.client = pymongo.MongoClient(self.url)
             return self.client[self.db]
         except Exception as e:
-            DBConnectionError(500, "Failed to connect Mongodb.", e)
+            DBError(**DBErrorCode.DBConnectionError, err=e)

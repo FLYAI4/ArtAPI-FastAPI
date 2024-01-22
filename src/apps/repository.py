@@ -1,4 +1,5 @@
-from src.libs.exception import DBProcessError
+from src.libs.exception import DBError
+from src.libs.error_code import DBErrorCode
 
 
 class Repository():
@@ -9,6 +10,8 @@ class Repository():
         try:
             collection = self.session[collection_name]
             result_id = collection.insert_one(img_data)
+            if not result_id:
+                raise Exception
             return result_id
         except Exception as e:
-            DBProcessError(500, "Failed to insert data", e)
+            DBError(**DBErrorCode.DBProcessError, err=e)

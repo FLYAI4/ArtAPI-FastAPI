@@ -4,6 +4,7 @@ import pytest
 import pymongo
 from datetime import datetime
 from bson.binary import Binary
+from pymongo.errors import ConnectionFailure
 
 
 apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
@@ -35,7 +36,7 @@ def mockup():
 
 @pytest.mark.asyncio
 async def test_user_repository_can_insert_data_with_valid(mockup):
-    # given : 유요한 데이터(사용자 정보 + 이미지 정보), 유효한 URL
+    # given : 유효한 데이터(사용자 정보 + 이미지 정보), 유효한 URL
     CONNECTION_URL = conf["mongo"]["CONNECTION_URL"]
 
     # when : DB에 데이터 저장
@@ -49,9 +50,15 @@ async def test_user_repository_can_insert_data_with_valid(mockup):
 
 @pytest.mark.asyncio
 async def test_user_repository_cannot_insert_data_with_valid():
-    # give : 유요한 데이터(사용자 정보 + 이미지 정보), 잘못된 URL
+    # give : 잘못된 URL
+    WRONG_URL = "wrong_url:!!"
 
     # when : DB에 데이터 저장 시 DB연결 오류
     # then : 에러
+    with pytest.raises(Exception):
+        client = pymongo.MongoClient(WRONG_URL)
+        collection = client[DB_NAME][COLLECTION_NAME]
+        result = collection.insert_one(mockup)
 
-    pass
+        # then : 이미지 ID 반환
+        assert result.inserted_id == ID

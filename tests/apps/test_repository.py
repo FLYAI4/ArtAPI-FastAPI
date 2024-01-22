@@ -44,8 +44,8 @@ async def test_user_repository_cannot_insert_data_with_valid():
     # give : 잘못된 URL
     WRONG_URL = "wrong_url:!!"
 
-    # when : DB에 데이터 저장 시 DB연결 오류
-    # then : 에러
+    # when : DB에 데이터 저장
+    # then : DB 연결 오류
     with pytest.raises(Exception):
         db = MongoManager(WRONG_URL).get_session()
         collection = db[COLLECTION_NAME]

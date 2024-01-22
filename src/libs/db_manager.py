@@ -5,8 +5,8 @@ from .exception import DBConnectionError
 
 class MongoManager:
     def __init__(self, url: str = conf["mongo"]["CONNECTION_URL"]) -> None:
-        self.db = conf["mongo"]["DB_NAME"]
         self.url = url
+        self.db = conf["mongo"]["DB_NAME"]
 
     def get_session(self):
         try:

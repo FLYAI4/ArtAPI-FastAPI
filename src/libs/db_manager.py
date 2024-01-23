@@ -14,4 +14,4 @@ class MongoManager:
             self.client = pymongo.MongoClient(self.url)
             return self.client[self.db]
         except Exception as e:
-            DBError(**DBErrorCode.DBConnectionError, err=e)
+            DBError(**DBErrorCode.DBConnectionError.value, err=e)

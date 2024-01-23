@@ -1,7 +1,11 @@
 from bson.binary import Binary
 from fastapi import UploadFile
 from .repository import Repository
-from src.libs.util import save_image_local, make_unique_name
+from src.libs.util import (
+    save_image_local,
+    make_unique_name,
+    delete_file
+    )
 
 
 class Service:
@@ -24,8 +28,10 @@ class Service:
             }
         self.repo.insert_image("tests", data)
 
+        # 저장 완료 후 로컬 이미지 삭제
+        delete_file(user_file_path)
+
         # TODO : 응답 수정
         return {
             "username": username
         }
-

@@ -27,9 +27,12 @@ async def create_upload_file(file: UploadFile = File(...)):
 async def test_user_service_can_insert_image_with_valid():
     client = TestClient(app)
 
+    # given : 유효한 데이터(이미지)
     with open(IMAGE_PATH, "rb") as f:
         files = {"file": ("image.jpg", f, "image/jpeg")}
+        # when : DB에 저장
         response = client.post("/test/uploadfile/", files=files)
 
+    # then : 정상 처리
     assert response.status_code == 200
     assert response.json()["username"] == USERNAME

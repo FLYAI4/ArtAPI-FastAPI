@@ -12,3 +12,11 @@ class DBErrorCode(Enum):
         "message": "Failed to insert data. Contact service administrator.",
         "log": "DB Process Error. Check DB module."
     }
+
+
+class SystemErrorCode(Enum):
+    OSModuleError = {
+        "code": 500,
+        "message": "System errpr. Contact service administrator.",
+        "log": "OSModule Error. Check os library"
+    }

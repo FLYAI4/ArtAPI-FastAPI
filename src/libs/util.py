@@ -12,7 +12,7 @@ def create_folder_if_not_exists(folder_path: str) -> str:
             return "Success create folder."
         return "Already exist folder."
     except OSError as e:
-        raise SystemError(**SystemErrorCode.OSModuleError, err=e)
+        raise SystemError(**SystemErrorCode.OSModuleError.value, err=e)
 
 
 def make_unique_name(username: str, extension=".png") -> str:
@@ -42,4 +42,4 @@ def delete_file(file_path):
             return "Success delete file."
         return "There is no file."
     except OSError as e:
-        raise SystemError(**SystemErrorCode.OSModuleError, err=e)
+        raise SystemError(**SystemErrorCode.OSModuleError.value, err=e)

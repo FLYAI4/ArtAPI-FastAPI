@@ -17,6 +17,19 @@ class DBErrorCode(Enum):
 class SystemErrorCode(Enum):
     OSModuleError = {
         "code": 500,
-        "message": "System errpr. Contact service administrator.",
+        "message": "System error. Contact service administrator.",
         "log": "OSModule Error. Check os library"
+    }
+
+
+class UserRequestErrorCode(Enum):
+    NonHeaderError = {
+        "code": 401,
+        "message": "There is non header. Please log in again.",
+        "log": "User request fail with non header."
+    }
+    NonFileError = {
+        "code": 401,
+        "message": "There is non file. Please request again.",
+        "log": "User request fail with non file."
     }

@@ -1,14 +1,7 @@
 import os
 import pytest
-from fastapi import FastAPI, UploadFile, File, Header
 from fastapi.testclient import TestClient
-from src.libs.db_manager import MongoManager
-from src.apps.service import Service
-from src.libs.exception import UserError
-from src.libs.error_code import UserRequestErrorCode
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from src.libs.exception import CustomHttpException
+from src.apps import create_app
 
 
 # TODO : 작품이 아닌 일반 사진을 넣었을 때 어떻게 처리할 것인지 고민!!
@@ -21,55 +14,9 @@ USERNAME = "kim"
 IMAGE_PATH = os.path.abspath(os.path.join(img_path, "test.jpg"))
 
 
-app = FastAPI()
-
-
-def error_handlers(app):
-    @app.exception_handler(CustomHttpException)
-    async def http_custom_exception_handler(request: Request, exc: CustomHttpException):
-        content = {
-            "meta": {
-                "code": exc.code,
-                "error": str(exc.error),
-                "message": exc.message
-            },
-            "data": None
-        }
-        return JSONResponse(
-            status_code=exc.code,
-            content=content
-        )
-
-
-error_handlers(app)
-
-
-@app.post("/user/content")
-async def make_generated_content(
-    username: str = Header(default=None),
-    file: UploadFile = File(default=None)
-    ):
-    # TODO : controller 이전 시 의존성으로 처리
-    session = MongoManager().get_session()
-
-    if not username:
-        raise UserError(**UserRequestErrorCode.NonHeaderError.value)
-    if not file:
-        raise UserError(**UserRequestErrorCode.NonFileError.value)
-
-    result = Service(session).insert_image(username, file)
-
-    return {
-        "meta": {
-            "code": 200,
-            "message": "ok"
-        },
-        "data": result
-    }
-
-
 @pytest.fixture
 def client():
+    app = create_app()
     client = TestClient(app)
     yield client
 

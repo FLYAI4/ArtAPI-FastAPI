@@ -50,8 +50,7 @@ async def test_user_repository_cannot_insert_data_with_invalid(mockup):
     # then : DBError
     with pytest.raises(DBError):
         # when : DB에 데이터 저장
-        result = Repository(session).insert_image(COLLECTION_NAME, mockup)
-        assert result.inserted_id == ID
+        Repository(session).insert_image(COLLECTION_NAME, mockup)
 
 
 @pytest.mark.asyncio
@@ -63,6 +62,5 @@ async def test_user_repository_cannot_insert_data_with_valid():
     with pytest.raises(DBError):
         # when : DB에 데이터 저장
         session = MongoManager(WRONG_URL).get_session()
-        result = Repository(session).insert_image(COLLECTION_NAME, mockup)
+        Repository(session).insert_image(COLLECTION_NAME, mockup)
 
-        assert result.inserted_id == ID

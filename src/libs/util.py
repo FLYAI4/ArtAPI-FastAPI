@@ -1,18 +1,12 @@
 import os
 from datetime import datetime
 from fastapi import UploadFile
-from .exception import SystemError
-from .error_code import SystemErrorCode
-
 
 def create_folder_if_not_exists(folder_path: str) -> str:
-    try:
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-            return "Success create folder."
-        return "Already exist folder."
-    except OSError as e:
-        raise SystemError(**SystemErrorCode.OSModuleError.value, err=e)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        return "Success create folder."
+    return "Already exist folder."
 
 
 def make_unique_name(username: str, extension=".png") -> str:
@@ -36,10 +30,7 @@ async def save_image_local(image_file: UploadFile, file_name: str) -> str:
 
 
 async def delete_file(file_path):
-    try:
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return "Success delete file."
-        return "There is no file."
-    except OSError as e:
-        raise SystemError(**SystemErrorCode.OSModuleError.value, err=e)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return "Success delete file."
+    return "There is no file."

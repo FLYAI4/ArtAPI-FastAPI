@@ -35,14 +35,14 @@ async def test_create_folder_and_file():
 async def test_delete_file():
     # given : 유효한 경로(test 폴더 안에 유효한 파일 존재)
     # when : 파일 삭제
-    result = delete_file(file_path)
+    result = await delete_file(file_path)
 
     # then : Success delete file. 반환
     assert result == "Success delete file."
 
     # given : 이미 삭제된 파일
     # when : 파일 삭제
-    result = delete_file(file_path)
+    result = await delete_file(file_path)
 
     # then : There is no file. 반환
     assert result == "There is no file."

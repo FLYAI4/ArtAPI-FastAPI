@@ -19,7 +19,7 @@ async def make_generated_content(
     if not file:
         raise UserError(**UserRequestErrorCode.NonFileError.value)
 
-    result = Service(session).insert_image(username, file)
+    result = await Service(session).insert_image(username, file)
     return {
         "meta": {
             "code": 200,

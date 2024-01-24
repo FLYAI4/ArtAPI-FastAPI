@@ -22,7 +22,7 @@ def make_unique_name(username: str, extension=".png") -> str:
     return f"{timestamp}_{username}{extension}"
 
 
-def save_image_local(image_file: UploadFile, file_name: str) -> str:
+async def save_image_local(image_file: UploadFile, file_name: str) -> str:
     libs_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
     imgs_path = os.path.abspath(os.path.join(libs_path, "img"))
     create_folder_if_not_exists(imgs_path)
@@ -35,7 +35,7 @@ def save_image_local(image_file: UploadFile, file_name: str) -> str:
     return user_file_path
 
 
-def delete_file(file_path):
+async def delete_file(file_path):
     try:
         if os.path.exists(file_path):
             os.remove(file_path)

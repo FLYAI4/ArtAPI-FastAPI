@@ -24,7 +24,6 @@ jobs:
     
       - name: Create .env File
         run: |
-          echo $DB_NAME
           echo "MONGO_CONNECTION_URL=$MONGO_CONNECTION_URL" > ./src/libs/.env
           echo "DB_NAME=$DB_NAME" >> ./src/libs/.env
         env:

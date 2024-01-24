@@ -25,6 +25,9 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest --cov-report term --cov=.
+        env:
+          MONGO_CONNECTION_URL: ${{ secrets.MONGO_CONNECTION_URL }}
+          DB_NAME: ${{ secrets.DB_NAME }}
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v2

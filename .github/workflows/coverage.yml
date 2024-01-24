@@ -24,9 +24,12 @@ jobs:
     
       - name: Create .env File
         run: |
-          echo ${{ secrets.DB_NAME }}
-          echo MONGO_CONNECTION_URL=${{ secrets.MONGO_CONNECTION_URL }} > ./src/libs/.env
-          echo DB_NAME=${{ secrets.DB_NAME }} >> ./src/libs/.env
+          echo $DB_NAME
+          echo "MONGO_CONNECTION_URL=$MONGO_CONNECTION_URL" > ./src/libs/.env
+          echo "DB_NAME=$DB_NAME" >> ./src/libs/.env
+        env:
+          MONGO_CONNECTION_URL: ${{ secrets.MONGO_CONNECTION_URL }}
+          DB_NAME: ${{ secrets.DB_NAME }}
 
       - name: Run tests with coverage
         run: |

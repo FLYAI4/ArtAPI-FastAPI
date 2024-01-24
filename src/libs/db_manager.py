@@ -9,7 +9,7 @@ class MongoManager:
         self.url = url
         self.db = conf["mongo"]["DB_NAME"]
 
-    def get_session(self):
+    def get_session(self) -> pymongo.MongoClient:
         try:
             self.client = pymongo.MongoClient(self.url)
             return self.client[self.db]

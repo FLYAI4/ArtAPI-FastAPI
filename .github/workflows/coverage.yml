@@ -22,6 +22,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  # 프로젝트에 필요한 경우
     
+      - name: Create .env File
+        run: |
+        echo "MONGO_CONNECTION_URL=${{ secrets.MONGO_CONNECTION_URL }}" > ./src/libs/.env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./src/libs/.env
+
       - name: Run tests with coverage
         run: |
           pytest --cov-report term --cov=.

@@ -1,13 +1,15 @@
+import os
 import pymongo
-from . import conf
 from .exception import DBError
 from .error_code import DBErrorCode
 
 
 class MongoManager:
-    def __init__(self, url: str = conf["mongo"]["CONNECTION_URL"]) -> None:
+    def __init__(
+        self, url: str = os.environ.get('MONGO_CONNECTION_URL')
+    ) -> None:
         self.url = url
-        self.db = conf["mongo"]["DB_NAME"]
+        self.db = os.environ.get('DB_NAME')
 
     def get_session(self) -> pymongo.MongoClient:
         try:

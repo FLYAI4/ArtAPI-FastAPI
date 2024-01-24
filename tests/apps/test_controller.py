@@ -8,7 +8,7 @@ from src.apps import create_app
 
 # Mock data
 apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-img_path = os.path.abspath(os.path.join(apps_path, "img"))
+img_path = os.path.abspath(os.path.join(apps_path, "test_img"))
 
 USERNAME = "kim"
 IMAGE_PATH = os.path.abspath(os.path.join(img_path, "test.jpg"))

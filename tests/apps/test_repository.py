@@ -8,7 +8,7 @@ from src.libs.exception import DBError
 
 
 apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-img_path = os.path.abspath(os.path.join(apps_path, "img"))
+img_path = os.path.abspath(os.path.join(apps_path, "test_img"))
 
 # MOCK data
 COLLECTION_NAME = "tests"

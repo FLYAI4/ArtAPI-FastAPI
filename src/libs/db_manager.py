@@ -12,8 +12,11 @@ class MongoManager:
         self.db = os.environ.get('DB_NAME')
 
     def get_session(self) -> pymongo.MongoClient:
+        if not self.url:
+            raise Exception("No url")
+
         try:
             self.client = pymongo.MongoClient(self.url)
             return self.client[self.db]
         except Exception as e:
-            DBError(**DBErrorCode.DBConnectionError.value, err=e)
+            raise DBError(**DBErrorCode.DBConnectionError.value, err=e)

@@ -1,11 +1,9 @@
-import os
 import pytest
-import json
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import Column, Integer, String
+
 from sqlalchemy import select
 from src.libs.db_manager import PostgreManager
+from src.apps.account.model import Account
 
 
 # Mock data
@@ -13,31 +11,6 @@ EMAIL = "test@naver.com"
 PASSWORD = "test1234"
 GENDER = "male"
 AGE = "20대"
-
-# DB connection
-account_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-apps_path = os.path.abspath(os.path.join(account_path, os.path.pardir))
-conf_path = os.path.abspath(os.path.join(apps_path, "conf"))
-conf_file = os.path.abspath(os.path.join(conf_path, "conf.json"))
-with open(conf_file, "rt") as f:
-    conf = json.load(f)
-POSTGRE_CONNECTION = conf["postgre"]
-
-
-# model.py
-class Base(DeclarativeBase):
-    pass
-
-
-class Account(Base):
-    __tablename__ = 'user_account'
-
-    seq = Column(Integer, primary_key=True)
-    email = Column(String(500), nullable=False)
-    password = Column(String(500), nullable=False)
-    gender = Column(String(20), nullable=False)
-    age = Column(String(200), nullable=False)
-    generate_count = Column(Integer, nullable=False)
 
 
 @pytest.fixture

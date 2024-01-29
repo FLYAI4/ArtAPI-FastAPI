@@ -76,15 +76,11 @@ async def test_account_repository_cannot_get_user_account(session):
 async def test_account_respository_can_get_all_user_account(session):
     # given :
     # when : DB에 데이터 전체 조회 요청
-    with session:
-        all_account_email = list()
-        sql = select(Account)
-        for obj in session.execute(sql):
-            all_account_email.append(obj.Account.email)
+    result = AccountRepository.get_all_user_account(session)
 
     # then : 조회된 데이터 확인
-    assert len(all_account_email) > 0
-    assert EMAIL in all_account_email
+    assert len(result) > 0
+    assert EMAIL in result
 
 
 @pytest.mark.asyncio(3)
@@ -101,11 +97,7 @@ async def test_account_repository_cannot_get_all_user_account(session):
         # then : email
 
     # when : DB 데이터 전체 조회 요청
-    with session:
-        all_account_email = list()
-        sql = select(Account)
-        for obj in session.execute(sql):
-            all_account_email.append(obj.Account.email)
+    result = AccountRepository.get_all_user_account(session)
 
     # then : 빈 리스트 출력
-    assert all_account_email == []
+    assert result == []

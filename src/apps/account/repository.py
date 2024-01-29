@@ -26,15 +26,27 @@ class AccountRepository:
 
     def get_user_account(session: Session, user_id: str):
         try:
-            sql = select(Account).filter(Account.email == user_id)
-            obj = session.execute(sql).scalar_one()
-            return {
-                "email": obj.email,
-                "password": obj.password,
-                "name": obj.name,
-                "gender": obj.gender,
-                "age": obj.age,
-                "generate_count": obj.generate_count
-            }
+            with session:
+                sql = select(Account).filter(Account.email == user_id)
+                obj = session.execute(sql).scalar_one()
+                return {
+                    "email": obj.email,
+                    "password": obj.password,
+                    "name": obj.name,
+                    "gender": obj.gender,
+                    "age": obj.age,
+                    "generate_count": obj.generate_count
+                }
+        except Exception as e:
+            raise DBError(**DBErrorCode.DBProcessError.value, err=e)
+
+    def get_all_user_account(session: Session):
+        try:
+            all_account_email = list()
+            with session:
+                sql = select(Account)
+                for obj in session.execute(sql):
+                    all_account_email.append(obj.Account.email)
+            return all_account_email
         except Exception as e:
             raise DBError(**DBErrorCode.DBProcessError.value, err=e)

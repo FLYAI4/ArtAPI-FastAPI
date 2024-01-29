@@ -17,3 +17,4 @@ class DBError(CustomHttpException):
 class UserError(CustomHttpException):
     def __init__(self, code: int, message: str, log: str) -> None:
         super().__init__(code, message, log)
+

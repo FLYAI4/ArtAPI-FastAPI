@@ -1,14 +1,13 @@
 import pytest
-from sqlalchemy.exc import NoResultFound
-
-from sqlalchemy import select
 from src.libs.db_manager import PostgreManager
-from src.apps.account.model import Account
+from src.libs.exception import DBError
+from src.apps.account.repository import AccountRepository
 
 
 # Mock data
 EMAIL = "test@naver.com"
 PASSWORD = "test1234"
+NAME="별명"
 GENDER = "male"
 AGE = "20대"
 
@@ -18,6 +17,7 @@ def mockup():
     yield {
         "email": EMAIL,
         "password": PASSWORD,
+        "name": NAME,
         "gender": GENDER,
         "age": AGE
     }
@@ -32,35 +32,18 @@ def session():
 @pytest.mark.asyncio
 async def test_account_repository_can_insert_user_account(mockup, session):
     # given : 유효한 유저 정보
-    obj = Account(
-        email=mockup["email"],
-        password=mockup["password"],
-        gender=mockup["gender"],
-        age=mockup["age"],
-        generate_count=0
-    )
-
     # when : DB에 데이터 입력 요청
-    with session:
-        session.add(obj)
-        session.commit()
+    result_email = AccountRepository.insert_user_account(session, mockup)
 
     # then : 입력완료되면 email 반환
+    assert result_email == EMAIL
 
     # then : 데이터 정상적으로 입력 되었는지 확인
-    with session:
-        sql = select(Account).filter(Account.email == EMAIL)
-        obj = session.execute(sql).scalar_one()
-        result = {
-            "email": obj.email,
-            "password": obj.password,
-            "gender": obj.gender,
-            "age": obj.age,
-            "generate_count": obj.generate_count
-        }
+    result = AccountRepository.get_user_account(session, result_email)
 
     assert result["email"] == EMAIL
     assert result["password"] == PASSWORD
+    assert result["name"] == NAME
     assert result["gender"] == GENDER
     assert result["age"] == AGE
     assert result["generate_count"] == 0
@@ -71,12 +54,9 @@ async def test_account_repository_can_insert_user_account(mockup, session):
 async def test_account_repository_cannot_get_user_account(session):
     # given : DB에 없는 조회할 유저 ID
     WRONG_EMAIL = "wrong_email"
-    # then : NoRsultFound error
-    with pytest.raises(NoResultFound):
-        with session:
-            # when : DB에 데이터 조회 요청
-            sql = select(Account).filter(Account.email == WRONG_EMAIL)
-            session.execute(sql).scalar_one()
+    # then : DBError
+    with pytest.raises(DBError):
+        AccountRepository.get_user_account(session, WRONG_EMAIL)
 
 
 @pytest.mark.order(2)

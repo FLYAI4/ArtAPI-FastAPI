@@ -1,11 +1,11 @@
 import os
 import pytest
 import json
-from sqlalchemy.orm import Session, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import select
+from src.libs.db_manager import PostgreManager
 
 
 # Mock data
@@ -22,23 +22,6 @@ conf_file = os.path.abspath(os.path.join(conf_path, "conf.json"))
 with open(conf_file, "rt") as f:
     conf = json.load(f)
 POSTGRE_CONNECTION = conf["postgre"]
-
-
-# db_manager.py
-class PostgreManager:
-    def __init__(self) -> None:
-        user: str = POSTGRE_CONNECTION["user"]
-        password: str = POSTGRE_CONNECTION["password"]
-        host: str = POSTGRE_CONNECTION["host"]
-        port: str = POSTGRE_CONNECTION["port"]
-        db: str = POSTGRE_CONNECTION["db"]
-        DATABASE_URL = f'postgresql://{user}:{password}@{host}:{port}/{db}'
-        self.engine = create_engine(
-            DATABASE_URL, pool_size=5, pool_recycle=100, max_overflow=10
-        )
-
-    def get_session(self):
-        return Session(self.engine)
 
 
 # model.py

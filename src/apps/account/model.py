@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 
 
 class Base(DeclarativeBase):
@@ -16,3 +16,4 @@ class Account(Base):
     gender = Column(String(20), nullable=False)
     age = Column(String(200), nullable=False)
     generate_count = Column(Integer, nullable=False)
+    status = Column(Boolean, nullable=False, default=True)

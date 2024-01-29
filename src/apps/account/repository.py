@@ -29,6 +29,7 @@ class AccountRepository:
             with session:
                 sql = select(Account).filter(Account.email == user_id)
                 obj = session.execute(sql).scalar_one()
+                # TODO : Login 개발할 때 status 여부 확인 -> USERERROR
                 return {
                     "email": obj.email,
                     "password": obj.password,

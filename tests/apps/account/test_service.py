@@ -1,11 +1,11 @@
+import jwt
 import pytest
+from datetime import datetime, timedelta
 from src.libs.exception import UserError
-from src.libs.error_code import UserRequestErrorCode
 from src.libs.db_manager import PostgreManager
 from src.apps.account.schema import UserSignupPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
-from src.libs.cipher import CipherManager
 from src.libs.validator import ApiValidator
 
 # Mock data
@@ -92,12 +92,20 @@ async def test_account_service_cannot_login_with_wrong_password(session):
 @pytest.mark.asyncio
 async def test_account_service_can_login_with_valid(session):
     # given : 유효한 로그인 정보
-
-    # when : 사용자 로그인 요청
+    ApiValidator.check_user_id(session, EMAIL)
+    user_info = AccountRepository.get_user_account(session, EMAIL)
+    ApiValidator.check_user_password(session, user_info["password"], PASSWORD)
 
     # when : token 생성
-    
-    # then : email, toeken 반환
+    TOKEN_KEY = "Test-token-key!!!"
+    token = jwt.encode({
+                "email": user_info["email"],
+                "exp": datetime.utcnow() + timedelta(hours=5)
+            }, TOKEN_KEY, algorithm="HS256")
+
+    # then : token 값 확인
+    decode_token = jwt.decode(token, TOKEN_KEY, algorithms="HS256")
+    assert decode_token["email"] == user_info["email"]
 
     result = AccountRepository.delete_user_account(session, EMAIL)
     assert result == EMAIL

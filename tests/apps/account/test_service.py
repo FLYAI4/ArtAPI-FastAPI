@@ -1,9 +1,10 @@
 import pytest
 from src.libs.exception import UserError
-from src.libs.cipher import CipherManager
 from src.libs.validator import ApiValidator
 from src.libs.db_manager import PostgreManager
+from src.apps.account.schema import UserSignupPayload
 from src.apps.account.repository import AccountRepository
+from src.apps.account.service import AccountService
 
 # Mock data
 EMAIL = "test@naver.com"
@@ -15,13 +16,13 @@ AGE = "20대"
 
 @pytest.fixture
 def mockup():
-    yield {
-        "email": EMAIL,
-        "password": PASSWORD,
-        "name": NAME,
-        "gender": GENDER,
-        "age": AGE
-    }
+    yield UserSignupPayload(
+        email=EMAIL,
+        password=PASSWORD,
+        name=NAME,
+        gender=GENDER,
+        age=AGE
+    )
 
 
 @pytest.fixture
@@ -33,6 +34,7 @@ def session():
 @pytest.mark.asyncio
 async def test_account_service_cannot_signup_user_with_existence_user(mockup, session):
     # given : 이미 가입된 Email
+    mockup = mockup.model_dump()
     result = AccountRepository.insert_user_account(session, mockup)
     assert result == EMAIL
 
@@ -49,19 +51,10 @@ async def test_account_service_cannot_signup_user_with_existence_user(mockup, se
 @pytest.mark.asyncio
 async def test_account_service_can_signup_user_with_valid(mockup, session):
     # given : 유효한 사용자 정보
-    # when : 중복된 Email 여부 확인
-    # then : 중복되지 않은 Email 확인
-    ApiValidator.check_user_existence(session, EMAIL)
+    # when : 사용자 회원가입 요청
+    result = AccountService.signup_user(session, mockup)
 
-    # when : 비밀번호 암호화 요청
-    encrypt_password = CipherManager().encrypt_password(mockup["password"])
-
-    # then : 암호화된 비밀번호
-    assert mockup["password"] != encrypt_password
-
-    # when : 정보 저장 요청
-    mockup["password"] = encrypt_password
-    result = AccountRepository.insert_user_account(session, mockup)
+    # then : 요청한 이메일 동일
     assert result == EMAIL
 
     result = AccountRepository.delete_user_account(session, EMAIL)

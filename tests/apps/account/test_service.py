@@ -1,11 +1,10 @@
-import jwt
 import pytest
-from datetime import datetime, timedelta
 from src.libs.exception import UserError
 from src.libs.db_manager import PostgreManager
-from src.apps.account.schema import UserSignupPayload
+from src.apps.account.schema import UserSignupPayload, UserLoginPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
+from src.libs.token import TokenManager
 from src.libs.validator import ApiValidator
 
 # Mock data
@@ -17,7 +16,7 @@ AGE = "20대"
 
 
 @pytest.fixture
-def mockup():
+def signupmockup():
     yield UserSignupPayload(
         email=EMAIL,
         password=PASSWORD,
@@ -28,21 +27,29 @@ def mockup():
 
 
 @pytest.fixture
+def loginmockup():
+    yield UserLoginPayload(
+        email=EMAIL,
+        password=PASSWORD
+    )
+
+
+@pytest.fixture
 def session():
     yield PostgreManager().get_session()
 
 
 @pytest.mark.order(1)
 @pytest.mark.asyncio
-async def test_account_service_cannot_signup_user_with_existence_user(mockup, session):
+async def test_account_service_cannot_signup_user_with_existence_user(session, signupmockup):
     # given : 이미 가입된 Email
-    result = AccountService.signup_user(session, mockup)
+    result = AccountService.signup_user(session, signupmockup)
     assert result == EMAIL
 
     # then : UserError 중복된 이메일
     with pytest.raises(UserError):
         # when : 중복된 Email 여부 확인
-        AccountService.signup_user(session, mockup)
+        AccountService.signup_user(session, signupmockup)
 
     result = AccountRepository.delete_user_account(session, EMAIL)
     assert result == EMAIL
@@ -50,10 +57,10 @@ async def test_account_service_cannot_signup_user_with_existence_user(mockup, se
 
 @pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_account_service_can_signup_user_with_valid(mockup, session):
+async def test_account_service_can_signup_user_with_valid(session, signupmockup):
     # given : 유효한 사용자 정보
     # when : 사용자 회원가입 요청
-    result = AccountService.signup_user(session, mockup)
+    result = AccountService.signup_user(session, signupmockup)
 
     # then : 요청한 이메일 동일
     assert result == EMAIL
@@ -80,7 +87,7 @@ async def test_account_service_cannot_login_with_wrong_password(session):
     # when : 사용자 로그인 요청
     user_info = AccountRepository.get_user_account(session, EMAIL)
     assert user_info["email"] == EMAIL
-    
+
     # then : UserError 반환
     with pytest.raises(UserError):
         ApiValidator.check_user_password(session,
@@ -90,22 +97,14 @@ async def test_account_service_cannot_login_with_wrong_password(session):
 
 @pytest.mark.order(4)
 @pytest.mark.asyncio
-async def test_account_service_can_login_with_valid(session):
+async def test_account_service_can_login_with_valid(session, loginmockup):
     # given : 유효한 로그인 정보
-    ApiValidator.check_user_id(session, EMAIL)
-    user_info = AccountRepository.get_user_account(session, EMAIL)
-    ApiValidator.check_user_password(session, user_info["password"], PASSWORD)
-
     # when : token 생성
-    TOKEN_KEY = "Test-token-key!!!"
-    token = jwt.encode({
-                "email": user_info["email"],
-                "exp": datetime.utcnow() + timedelta(hours=5)
-            }, TOKEN_KEY, algorithm="HS256")
+    result = AccountService.login_user(session, loginmockup)
 
     # then : token 값 확인
-    decode_token = jwt.decode(token, TOKEN_KEY, algorithms="HS256")
-    assert decode_token["email"] == user_info["email"]
+    decode_token = TokenManager().decode_token(result["token"])
+    assert decode_token["email"] == result["email"]
 
     result = AccountRepository.delete_user_account(session, EMAIL)
     assert result == EMAIL

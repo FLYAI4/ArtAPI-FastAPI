@@ -7,3 +7,8 @@ class UserSignupPayload(pydantic.BaseModel):
     name: str
     gender: str
     age: str
+
+
+class UserLoginPayload(pydantic.BaseModel):
+    email: str
+    password: str

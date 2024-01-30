@@ -1,12 +1,8 @@
 import pytest
-from fastapi import FastAPI, Depends
 from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
-from src.apps.account.service import AccountService
+from src.apps import create_app
 from src.apps.account.repository import AccountRepository
-from src.apps.account.schema import UserSignupPayload
 from src.libs.db_manager import PostgreManager
-from src.libs.error_handler import error_handlers
 
 
 # Mock data
@@ -15,23 +11,6 @@ PASSWORD = "test1234"
 NAME="별명"
 GENDER = "male"
 AGE = "20대"
-
-app = FastAPI()
-error_handlers(app)
-
-@app.post("/account/signup")
-def user_signup(
-    payload: UserSignupPayload,
-    session: Session = Depends(PostgreManager().get_session)
-):
-    resp = AccountService.signup_user(session, payload)
-    return {
-        "meta": {
-            "code": 200,
-            "message": "ok"
-        },
-        "data": resp
-    }
 
 
 @pytest.fixture
@@ -46,6 +25,7 @@ def mockup():
     
 @pytest.fixture
 def client():
+    app = create_app()
     yield TestClient(app)
 
 

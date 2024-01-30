@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .controller import user
+from src.apps.controller import user
+from src.apps.account.controller import account
 from src.libs.error_handler import error_handlers
 
 
@@ -9,6 +10,7 @@ def create_app():
 
     # Router
     app.include_router(user)
+    app.include_router(account)
 
     # Handler
     error_handlers(app)

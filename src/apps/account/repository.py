@@ -52,3 +52,15 @@ class AccountRepository:
             return all_account_email
         except Exception as e:
             raise DBError(**DBErrorCode.DBProcessError.value, err=e)
+
+    def delete_user_account(session: Session, user_id: str):
+        try:
+            with session:
+                sql = select(Account).filter(Account.email == user_id)
+                obj = session.execute(sql).scalar_one()
+                if obj:
+                    session.delete(obj)
+                session.commit()
+            return user_id
+        except Exception as e:
+            raise DBError(**DBErrorCode.DBProcessError.value, err=e)

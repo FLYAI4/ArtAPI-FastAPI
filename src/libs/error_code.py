@@ -33,3 +33,8 @@ class UserRequestErrorCode(Enum):
         "message": "There is non file. Please request again.",
         "log": "User request fail with non file."
     }
+    AlreadyUserError = {
+        "code": 401,
+        "message": "The user email is already created. Please sign up another email.",
+        "log": "User service sign up fail with already existence email."
+    }

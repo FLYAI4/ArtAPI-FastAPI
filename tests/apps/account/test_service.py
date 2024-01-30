@@ -1,4 +1,8 @@
 import pytest
+from src.apps.account.repository import AccountRepository
+from src.libs.exception import UserError
+from src.libs.error_code import UserRequestErrorCode
+from src.libs.db_manager import PostgreManager
 
 # Mock data
 EMAIL = "test@naver.com"
@@ -19,14 +23,27 @@ def mockup():
     }
 
 
-@pytest.mark.asyncio
-async def test_account_service_cannot_signup_user_with_existence_user():
-    # given : 이미 가입된 Email
+@pytest.fixture
+def session():
+    yield PostgreManager().get_session()
 
-    # when : 중복된 Email 여부 확인
+
+@pytest.mark.order(1)
+@pytest.mark.asyncio
+async def test_account_service_cannot_signup_user_with_existence_user(mockup, session):
+    # given : 이미 가입된 Email
+    result = AccountRepository.insert_user_account(session, mockup)
+    assert result == EMAIL
 
     # then : UserError 중복된 이메일
-    pass
+    with pytest.raises(UserError):
+        # when : 중복된 Email 여부 확인
+        all_user_account = AccountRepository.get_all_user_account(session)
+        if EMAIL in all_user_account:
+            raise UserError(**UserRequestErrorCode.AlreadyUserError.value)
+
+    result = AccountRepository.delete_user_account(session, EMAIL)
+    assert result == EMAIL
 
 
 @pytest.mark.asyncio

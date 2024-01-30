@@ -87,15 +87,8 @@ async def test_account_respository_can_get_all_user_account(session):
 @pytest.mark.asyncio(3)
 async def test_account_repository_cannot_get_all_user_account(session):
     # given : 테이블에 아무 데이터도 없을 때
-    with session:
-        # given : DB에 기존 데이터
-        sql = select(Account).filter(Account.email == EMAIL)
-        # when : 기존 데이터 삭제
-        obj = session.execute(sql).scalar_one()
-        if obj:
-            session.delete(obj)
-        session.commit()
-        # then : email
+    result = AccountRepository.delete_user_account(session, EMAIL)
+    assert result == EMAIL
 
     # when : DB 데이터 전체 조회 요청
     result = AccountRepository.get_all_user_account(session)

@@ -6,4 +6,4 @@ img
 imgs
 htmlcov
 .env
-.coverage
+./.coverage

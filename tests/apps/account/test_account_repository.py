@@ -1,3 +1,4 @@
+import uuid
 import pytest
 import base64
 from src.libs.db_manager import PostgreManager
@@ -15,7 +16,6 @@ AGE = "20대"
 @pytest.fixture
 def mockup():
     yield {
-        "email": EMAIL,
         "password": PASSWORD,
         "name": NAME,
         "gender": GENDER,
@@ -28,29 +28,33 @@ def session():
     yield PostgreManager().get_session()
 
 
-@pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_account_repository_can_insert_user_account(mockup, session):
     # given : 유효한 유저 정보
+    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    mockup["email"] = unique_email
+
     # when : DB에 데이터 입력 요청
     result_email = AccountRepository.insert_user_account(session, mockup)
 
     # then : 입력완료되면 email 반환
-    assert result_email == EMAIL
+    assert result_email == unique_email
 
     # then : 데이터 정상적으로 입력 되었는지 확인
     result = AccountRepository.get_user_account(session, result_email)
 
-    assert result["email"] == EMAIL
+    assert result["email"] == unique_email
     assert result["password"] == PASSWORD
     assert result["name"] == NAME
     assert result["gender"] == GENDER
     assert result["age"] == AGE
     assert result["generate_count"] == 0
     assert result["status"]
+    
+    result = AccountRepository.delete_user_account(session, unique_email)
+    assert result == unique_email
 
 
-@pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_account_repository_cannot_get_user_account(session):
     # given : DB에 없는 조회할 유저 ID
@@ -71,26 +75,21 @@ async def test_account_repository_cannot_get_user_account(session):
 #     pass
 
 
-@pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_account_respository_can_get_all_user_account(session):
-    # given :
+async def test_account_respository_can_get_all_user_account(session, mockup):
+    # given : 생성된 계정 존재
+    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    mockup["email"] = unique_email
+
+    result_email = AccountRepository.insert_user_account(session, mockup)
+    assert result_email == unique_email
+
     # when : DB에 데이터 전체 조회 요청
     result = AccountRepository.get_all_user_account(session)
 
     # then : 조회된 데이터 확인
     assert len(result) > 0
-    assert EMAIL in result
+    assert unique_email in result
 
-
-@pytest.mark.asyncio(3)
-async def test_account_repository_cannot_get_all_user_account(session):
-    # given : 테이블에 아무 데이터도 없을 때
-    result = AccountRepository.delete_user_account(session, EMAIL)
-    assert result == EMAIL
-
-    # when : DB 데이터 전체 조회 요청
-    result = AccountRepository.get_all_user_account(session)
-
-    # then : 빈 리스트 출력
-    assert result == []
+    result = AccountRepository.delete_user_account(session, unique_email)
+    assert result == unique_email

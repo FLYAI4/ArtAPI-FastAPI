@@ -44,20 +44,21 @@ async def test_account_service_cannot_signup_user_with_existence_user(mockup, se
     assert result == EMAIL
 
 
+@pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_account_service_cannot_signup_user_with_encrypt_error():
+async def test_account_service_cannot_signup_user_with_encrypt_error(mockup, session):
     # given : 유효한 사용자 정보
+    # when : 중복된 Email 여부 확인
+    # then : 중복되지 않은 Email 확인
+    ApiValidator.check_user_existence(session, EMAIL)
 
     # when : 비밀번호 암호화 요청
-
-    # when : 중복된 Email 여부 확인
-
-    # then : 중복되지 않은 Email 확인
 
     # then : 암호화 오류
     pass
 
 
+@pytest.mark.order(3)
 @pytest.mark.asyncio
 async def test_account_service_can_signup_user_with_valid(mockup):
     # given : 유효한 사용자 정보

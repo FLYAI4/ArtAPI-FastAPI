@@ -6,6 +6,7 @@ from src.apps.account.schema import UserSignupPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
 from src.libs.cipher import CipherManager
+from src.libs.validator import ApiValidator
 
 # Mock data
 EMAIL = "test@naver.com"
@@ -65,11 +66,9 @@ async def test_account_service_cannot_login_with_no_signup_account(session):
     wrong_id = "wrong@naver.com"
 
     # when : 사용자 로그인 요청
-    all_user_account = AccountRepository.get_all_user_account(session)
     with pytest.raises(UserError):
-        if wrong_id not in all_user_account:
-            # then : UserError 반환
-            raise UserError(**UserRequestErrorCode.NonSignupError.value)
+        # then : UserError 반환
+        ApiValidator.check_user_id(session, wrong_id)
 
 
 @pytest.mark.order(3)
@@ -81,12 +80,12 @@ async def test_account_service_cannot_login_with_wrong_password(session):
     # when : 사용자 로그인 요청
     user_info = AccountRepository.get_user_account(session, EMAIL)
     assert user_info["email"] == EMAIL
-
+    
+    # then : UserError 반환
     with pytest.raises(UserError):
-        origin_password = CipherManager().decrypt_password(user_info["password"])
-        if wrong_password != origin_password:
-            # then : UserError 반환
-            raise UserError(**UserRequestErrorCode.WrongPasswordError.value)
+        ApiValidator.check_user_password(session,
+                                         user_info["password"],
+                                         wrong_password)
 
 
 @pytest.mark.order(4)

@@ -26,9 +26,15 @@ jobs:
         run: |
           echo "MONGO_CONNECTION_URL=$MONGO_CONNECTION_URL" > ./src/libs/.env
           echo "DB_NAME=$DB_NAME" >> ./src/libs/.env
+          echo "POSTGRESQL_CONNECTION_URL=$POSTGRESQL_CONNECTION_URL" >> ./src/libs/.env
+          echo "DEK_KEY=$DEK_KEY" >> ./src/libs/.env
+          echo "TOKEN_KEY=$TOKEN_KEY" >> ./src/libs/.env
         env:
           MONGO_CONNECTION_URL: ${{ secrets.MONGO_CONNECTION_URL }}
           DB_NAME: ${{ secrets.DB_NAME }}
+          POSTGRESQL_CONNECTION_URL: ${{ secrets.POSTGRESQL_CONNECTION_URL }}
+          DEK_KEY: ${{ secrets.DEK_KEY }}
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
 
       - name: Run tests with coverage
         run: |

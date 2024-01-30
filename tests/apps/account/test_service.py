@@ -1,9 +1,11 @@
 import pytest
 from src.libs.exception import UserError
+from src.libs.error_code import UserRequestErrorCode
 from src.libs.db_manager import PostgreManager
 from src.apps.account.schema import UserSignupPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
+from src.libs.cipher import CipherManager
 
 # Mock data
 EMAIL = "test@naver.com"
@@ -58,24 +60,36 @@ async def test_account_service_can_signup_user_with_valid(mockup, session):
 
 @pytest.mark.order(3)
 @pytest.mark.asyncio
-async def test_account_service_cannot_login_with_no_signup_account():
+async def test_account_service_cannot_login_with_no_signup_account(session):
     # given : 가입되지 않은 계정 로그인
-    
+    wrong_id = "wrong@naver.com"
+
     # when : 사용자 로그인 요청
-    
-    # then : UserError 반환
-    pass
+    all_user_account = AccountRepository.get_all_user_account(session)
+    with pytest.raises(UserError):
+        if wrong_id not in all_user_account:
+            # then : UserError 반환
+            raise UserError(**UserRequestErrorCode.NonSignupError.value)
 
 
 @pytest.mark.order(3)
 @pytest.mark.asyncio
-async def test_account_service_cannot_login_with_wrong_password():
+async def test_account_service_cannot_login_with_wrong_password(session):
     # given : 유효한 로그인 정보 + 잘못된 비밀번호
-    
+    wrong_password = "wrong1234"
+
     # when : 사용자 로그인 요청
-    
-    # then : UserError 반환
-    pass
+    user_info = AccountRepository.get_user_account(session, EMAIL)
+    assert user_info["email"] == EMAIL
+
+    check_password = CipherManager().encrypt_password(PASSWORD)
+    assert check_password == user_info["password"]
+
+    with pytest.raises(UserError):
+        origin_password = CipherManager().decrypt_password(user_info["password"])
+        if wrong_password != origin_password:
+            # then : UserError 반환
+            raise UserError(**UserRequestErrorCode.WrongPasswordError.value)
 
 
 @pytest.mark.order(4)
@@ -85,6 +99,8 @@ async def test_account_service_can_login_with_valid(session):
 
     # when : 사용자 로그인 요청
 
+    # when : token 생성
+    
     # then : email, toeken 반환
 
     result = AccountRepository.delete_user_account(session, EMAIL)

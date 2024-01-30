@@ -1,13 +1,12 @@
 import pytest
-from sqlalchemy import select
-from src.apps.account.model import Account
+import base64
 from src.libs.db_manager import PostgreManager
 from src.libs.exception import DBError
 from src.apps.account.repository import AccountRepository
 
 # Mock data
 EMAIL = "test@naver.com"
-PASSWORD = "test1234"
+PASSWORD = base64.b64encode(bytes("test1234", 'utf-8'))
 NAME="별명"
 GENDER = "male"
 AGE = "20대"

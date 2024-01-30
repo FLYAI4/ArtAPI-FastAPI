@@ -29,6 +29,7 @@ def client():
     yield TestClient(app)
 
 
+@pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_account_controller_can_signup_with_valid(client, mockup):
     # given : 유효한 payload
@@ -43,9 +44,8 @@ async def test_account_controller_can_signup_with_valid(client, mockup):
     assert response.json()["meta"]["message"] == "ok"
     assert response.json()["data"] == EMAIL
 
-    AccountRepository.delete_user_account(PostgreManager().get_session(), EMAIL)
 
-
+@pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_account_controller_cannot_signup_with_invalid(client):
     # given : 유효하지 않은 payload(name 없이)
@@ -65,3 +65,25 @@ async def test_account_controller_cannot_signup_with_invalid(client):
     # then : 에러 응답(pydantic type error)
     assert response.status_code == 422
     assert response.json()["meta"]["message"] == "A required value is missing. Please check."
+
+
+@pytest.mark.order(2)
+@pytest.mark.asyncio
+async def test_account_controller_can_login_with_valid(client):
+    # given : 유효한 payload
+    
+    # when : 로그인 요청
+    
+    # then : user_id, token 반환
+    AccountRepository.delete_user_account(PostgreManager().get_session(), EMAIL)
+
+
+@pytest.mark.order(2)
+@pytest.mark.asyncio
+async def test_account_controller_cannot_login_with_invalid(client):
+    # given : 유효하지 않은 payload(password 없이)
+    
+    # when : 로그인 요청
+    
+    # then : 에러 응답(pydantic type error)
+    pass

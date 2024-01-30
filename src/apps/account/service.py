@@ -14,7 +14,7 @@ class AccountService:
         # Encrypt password
         encrypt_password = CipherManager().encrypt_password(data["password"])
         data["password"] = encrypt_password
-        
+
         result = AccountRepository.insert_user_account(session, data)
         return result
 

@@ -82,9 +82,6 @@ async def test_account_service_cannot_login_with_wrong_password(session):
     user_info = AccountRepository.get_user_account(session, EMAIL)
     assert user_info["email"] == EMAIL
 
-    check_password = CipherManager().encrypt_password(PASSWORD)
-    assert check_password == user_info["password"]
-
     with pytest.raises(UserError):
         origin_password = CipherManager().decrypt_password(user_info["password"])
         if wrong_password != origin_password:

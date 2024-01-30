@@ -1,12 +1,10 @@
-import pytest
 from src.libs.cipher import CipherManager
 
 # Mock data
 ORI_PASSWORD = "rlaalswns1234"
 
 
-@pytest.mark.asyncio
-async def test_can_encrypt_password_with_long_password():
+def test_can_encrypt_password_with_long_password():
     # given : 비정상적인 비밀번호(매우 긴 패스워드)
     long_password = ORI_PASSWORD * 10
 
@@ -23,8 +21,7 @@ async def test_can_encrypt_password_with_long_password():
     assert origin_password == long_password
 
 
-@pytest.mark.asyncio
-async def test_can_encrypt_password_with_short_password():
+def test_can_encrypt_password_with_short_password():
     # given : 비정상적인 비밀번호(매우 짧은 패스워드)
     short_password = "a"
     assert len(short_password) == 1
@@ -41,8 +38,7 @@ async def test_can_encrypt_password_with_short_password():
     assert origin_password == short_password
 
 
-@pytest.mark.asyncio
-async def test_can_encrypt_password_with_special_charactors():
+def test_can_encrypt_password_with_special_charactors():
     special_password = "!!@@$^&*(*%$$%^&)"
 
     encrypt_password = CipherManager().encrypt_password(special_password)
@@ -57,8 +53,7 @@ async def test_can_encrypt_password_with_special_charactors():
     assert origin_password == special_password
 
 
-@pytest.mark.asyncio
-async def test_can_encrypt_decrypt_password():
+def test_can_encrypt_decrypt_password():
     # given : 정상적인 비밀번호
     # when : 암호화
     encrypt_password = CipherManager().encrypt_password(ORI_PASSWORD)

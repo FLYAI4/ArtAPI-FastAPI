@@ -29,8 +29,7 @@ def mockup():
 
 
 @pytest.mark.order(1)
-@pytest.mark.asyncio
-async def test_user_repository_can_insert_data_with_valid(mockup):
+def test_user_repository_can_insert_data_with_valid(mockup):
     # given : 유효한 데이터(사용자 정보 + 이미지 정보), 유효한 URL
     session = MongoManager().get_session()
 
@@ -42,8 +41,7 @@ async def test_user_repository_can_insert_data_with_valid(mockup):
 
 
 @pytest.mark.order(2)
-@pytest.mark.asyncio
-async def test_user_repository_cannot_insert_data_with_invalid(mockup):
+def test_user_repository_cannot_insert_data_with_invalid(mockup):
     # given : 동일한 ID를 가진 데이터, 유효한 URL
     session = MongoManager().get_session()
 
@@ -53,8 +51,7 @@ async def test_user_repository_cannot_insert_data_with_invalid(mockup):
         Repository(session).insert_image(COLLECTION_NAME, mockup)
 
 
-@pytest.mark.asyncio
-async def test_user_repository_cannot_insert_data_with_valid():
+def test_user_repository_cannot_insert_data_with_valid():
     # give : 잘못된 URL
     WRONG_URL = "wrong_url:!!"
 
@@ -63,4 +60,3 @@ async def test_user_repository_cannot_insert_data_with_valid():
         # when : DB에 데이터 저장
         session = MongoManager(WRONG_URL).get_session()
         Repository(session).insert_image(COLLECTION_NAME, mockup)
-

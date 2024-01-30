@@ -28,8 +28,7 @@ def session():
     yield PostgreManager().get_session()
 
 
-@pytest.mark.asyncio
-async def test_account_repository_can_insert_user_account(mockup, session):
+def test_account_repository_can_insert_user_account(mockup, session):
     # given : 유효한 유저 정보
     unique_email = EMAIL + str(uuid.uuid4())[:10]
     mockup["email"] = unique_email
@@ -55,8 +54,8 @@ async def test_account_repository_can_insert_user_account(mockup, session):
     assert result == unique_email
 
 
-@pytest.mark.asyncio
-async def test_account_repository_cannot_get_user_account(session):
+
+def test_account_repository_cannot_get_user_account(session):
     # given : DB에 없는 조회할 유저 ID
     WRONG_EMAIL = "wrong_email"
     # then : DBError
@@ -75,8 +74,7 @@ async def test_account_repository_cannot_get_user_account(session):
 #     pass
 
 
-@pytest.mark.asyncio
-async def test_account_respository_can_get_all_user_account(session, mockup):
+def test_account_respository_can_get_all_user_account(session, mockup):
     # given : 생성된 계정 존재
     unique_email = EMAIL + str(uuid.uuid4())[:10]
     mockup["email"] = unique_email

@@ -35,8 +35,7 @@ def session():
     yield PostgreManager().get_session()
 
 
-@pytest.mark.asyncio
-async def test_account_controller_can_signup_with_valid(client, session, signup_mockup):
+def test_account_controller_can_signup_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
     unique_email = EMAIL + str(uuid.uuid4())[:10]
     signup_mockup["email"] = unique_email
@@ -57,8 +56,7 @@ async def test_account_controller_can_signup_with_valid(client, session, signup_
     assert result == unique_email
 
 
-@pytest.mark.asyncio
-async def test_account_controller_cannot_signup_with_invalid(client):
+def test_account_controller_cannot_signup_with_invalid(client):
     # given : 유효하지 않은 payload(name 없이)
     wrong_data = {
         "email": EMAIL,
@@ -78,8 +76,7 @@ async def test_account_controller_cannot_signup_with_invalid(client):
     assert response.json()["meta"]["message"] == "A required value is missing. Please check."
 
 
-@pytest.mark.asyncio
-async def test_account_controller_can_login_with_valid(client, session, signup_mockup):
+def test_account_controller_can_login_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
     unique_email = EMAIL + str(uuid.uuid4())[:10]
     signup_mockup["email"] = unique_email
@@ -113,8 +110,7 @@ async def test_account_controller_can_login_with_valid(client, session, signup_m
     assert result == unique_email
 
 
-@pytest.mark.asyncio
-async def test_account_controller_cannot_login_with_invalid(client):
+def test_account_controller_cannot_login_with_invalid(client):
     # given : 유효하지 않은 payload(password 없이)
     wrong_data = {
         "email": EMAIL

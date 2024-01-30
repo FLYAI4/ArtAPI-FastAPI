@@ -21,8 +21,7 @@ def client():
     yield client
 
 
-@pytest.mark.asyncio
-async def test_user_can_make_generated_content(client):
+def test_user_can_make_generated_content(client):
     # given : 유효한 payload (header : username, file: UpladFile)
     headers = {"username": USERNAME}
 
@@ -41,8 +40,7 @@ async def test_user_can_make_generated_content(client):
     assert response.json()["data"]["username"] == USERNAME
 
 
-@pytest.mark.asyncio
-async def test_user_cannot_make_generated_content_with_non_header(client):
+def test_user_cannot_make_generated_content_with_non_header(client):
     # given : 유효하지 않은 payload (header 없이 요청)
     # when : 콘텐츠 생성 API 요청
     with open(IMAGE_PATH, "rb") as f:
@@ -56,8 +54,7 @@ async def test_user_cannot_make_generated_content_with_non_header(client):
     assert response.json()["meta"]["message"] == "There is non header. Please log in again."
 
 
-@pytest.mark.asyncio
-async def test_user_cannot_make_generated_content_with_non_file(client):
+def test_user_cannot_make_generated_content_with_non_file(client):
     # given : 유효하지 않은 payload (file 없이 요청)
     headers = {"username": USERNAME}
 

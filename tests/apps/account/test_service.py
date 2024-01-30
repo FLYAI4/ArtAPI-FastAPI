@@ -1,8 +1,9 @@
 import pytest
-from src.apps.account.repository import AccountRepository
 from src.libs.exception import UserError
-from src.libs.db_manager import PostgreManager
+from src.libs.cipher import CipherManager
 from src.libs.validator import ApiValidator
+from src.libs.db_manager import PostgreManager
+from src.apps.account.repository import AccountRepository
 
 # Mock data
 EMAIL = "test@naver.com"
@@ -38,7 +39,7 @@ async def test_account_service_cannot_signup_user_with_existence_user(mockup, se
     # then : UserError 중복된 이메일
     with pytest.raises(UserError):
         # when : 중복된 Email 여부 확인
-        ApiValidator.check_user_existence(session, EMAIL)
+        ApiValidator.check_user_existence(session, mockup["email"])
 
     result = AccountRepository.delete_user_account(session, EMAIL)
     assert result == EMAIL
@@ -46,32 +47,22 @@ async def test_account_service_cannot_signup_user_with_existence_user(mockup, se
 
 @pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_account_service_cannot_signup_user_with_encrypt_error(mockup, session):
+async def test_account_service_can_signup_user_with_valid(mockup, session):
     # given : 유효한 사용자 정보
     # when : 중복된 Email 여부 확인
     # then : 중복되지 않은 Email 확인
     ApiValidator.check_user_existence(session, EMAIL)
 
     # when : 비밀번호 암호화 요청
-
-    # then : 암호화 오류
-    pass
-
-
-@pytest.mark.order(3)
-@pytest.mark.asyncio
-async def test_account_service_can_signup_user_with_valid(mockup):
-    # given : 유효한 사용자 정보
-
-    # when : 중복된 Email 여부 확인
-
-    # then : 중복되지 않은 Email 확인
-
-    # when : 비밀번호 암호화 요청
+    encrypt_password = CipherManager().encrypt_password(mockup["password"])
 
     # then : 암호화된 비밀번호
+    assert mockup["password"] != encrypt_password
 
     # when : 정보 저장 요청
+    mockup["password"] = encrypt_password
+    result = AccountRepository.insert_user_account(session, mockup)
+    assert result == EMAIL
 
-    # then : 사용자 EMAIL 반환
-    pass
+    result = AccountRepository.delete_user_account(session, EMAIL)
+    assert result == EMAIL

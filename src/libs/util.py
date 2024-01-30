@@ -34,3 +34,13 @@ async def delete_file(file_path):
         os.remove(file_path)
         return "Success delete file."
     return "There is no file."
+
+
+def make_response(resp: any):
+    return {
+        "meta": {
+            "code": 200,
+            "message": "ok"
+        },
+        "data": resp
+    }

@@ -14,7 +14,7 @@ AGE = "20대"
 
 
 @pytest.fixture
-def mockup():
+def signup_mockup():
     yield {
         "email": EMAIL,
         "password": PASSWORD,
@@ -22,7 +22,16 @@ def mockup():
         "gender": GENDER,
         "age": AGE
     }
-    
+
+
+@pytest.fixture
+def login_mockup():
+    yield {
+        "email": EMAIL,
+        "password": PASSWORD
+    }
+
+
 @pytest.fixture
 def client():
     app = create_app()
@@ -31,12 +40,12 @@ def client():
 
 @pytest.mark.order(1)
 @pytest.mark.asyncio
-async def test_account_controller_can_signup_with_valid(client, mockup):
+async def test_account_controller_can_signup_with_valid(client, signup_mockup):
     # given : 유효한 payload
     # when : 회원가입 요청
     response = client.post(
         "/account/signup",
-        json=mockup
+        json=signup_mockup
     )
 
     # then : 정상 응답
@@ -69,21 +78,37 @@ async def test_account_controller_cannot_signup_with_invalid(client):
 
 @pytest.mark.order(2)
 @pytest.mark.asyncio
-async def test_account_controller_can_login_with_valid(client):
+async def test_account_controller_can_login_with_valid(client, login_mockup):
     # given : 유효한 payload
-    
     # when : 로그인 요청
-    
-    # then : user_id, token 반환
-    AccountRepository.delete_user_account(PostgreManager().get_session(), EMAIL)
+    response = client.post(
+        "/account/login",
+        json=login_mockup
+    )
+
+    # then : 정상 응답
+    assert response.status_code == 200
+    assert response.json()["meta"]["message"] == "ok"
+    assert response.json()["data"]["email"] == EMAIL
+    assert response.json()["data"]["token"]
 
 
 @pytest.mark.order(2)
 @pytest.mark.asyncio
 async def test_account_controller_cannot_login_with_invalid(client):
     # given : 유효하지 않은 payload(password 없이)
-    
+    wrong_data = {
+        "email": EMAIL
+    }
+
     # when : 로그인 요청
-    
+    response = client.post(
+        "/account/login",
+        json=wrong_data
+    )
+
     # then : 에러 응답(pydantic type error)
-    pass
+    assert response.status_code == 422
+    assert response.json()["meta"]["message"] == "A required value is missing. Please check."
+
+    AccountRepository.delete_user_account(PostgreManager().get_session(), EMAIL)

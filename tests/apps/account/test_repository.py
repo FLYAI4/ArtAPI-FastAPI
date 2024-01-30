@@ -48,6 +48,7 @@ async def test_account_repository_can_insert_user_account(mockup, session):
     assert result["gender"] == GENDER
     assert result["age"] == AGE
     assert result["generate_count"] == 0
+    assert result["status"]
 
 
 @pytest.mark.order(1)

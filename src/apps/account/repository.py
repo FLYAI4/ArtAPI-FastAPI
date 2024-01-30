@@ -36,7 +36,8 @@ class AccountRepository:
                     "name": obj.name,
                     "gender": obj.gender,
                     "age": obj.age,
-                    "generate_count": obj.generate_count
+                    "generate_count": obj.generate_count,
+                    "status": obj.status
                 }
         except Exception as e:
             raise DBError(**DBErrorCode.DBProcessError.value, err=e)

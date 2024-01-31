@@ -2,7 +2,7 @@ import os
 import pytest
 from fastapi import FastAPI, UploadFile, File
 from fastapi.testclient import TestClient
-from src.apps.service import Service
+from src.apps.user.service import UserService
 from src.libs.db_manager import MongoManager
 
 
@@ -19,7 +19,7 @@ app = FastAPI()
 @app.post("/test/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     session = MongoManager().get_session()
-    result = await Service.insert_image(session, USERNAME, file)
+    result = await UserService.insert_image(session, USERNAME, file)
     return result
 
 

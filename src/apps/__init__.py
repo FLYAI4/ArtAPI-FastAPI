@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.apps.controller import user
+from src.apps.user.controller import user
 from src.apps.account.controller import account
 from src.libs.error_handler import error_handlers
 

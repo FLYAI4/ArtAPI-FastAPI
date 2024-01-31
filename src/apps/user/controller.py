@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Header
 from src.libs.db_manager import MongoManager
 from src.libs.exception import UserError
 from src.libs.error_code import UserRequestErrorCode
-from src.apps.service import Service
+from src.apps.user.service import UserService
 from src.libs.util import make_response
 
 user = APIRouter(prefix="/user")
@@ -20,5 +20,5 @@ async def make_generated_content(
     if not file:
         raise UserError(**UserRequestErrorCode.NonFileError.value)
 
-    result = await Service.insert_image(session, username, file)
+    result = await UserService.insert_image(session, username, file)
     return make_response(result)

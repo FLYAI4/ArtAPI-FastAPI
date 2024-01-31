@@ -3,7 +3,7 @@ import pytest
 from datetime import datetime
 from bson.binary import Binary
 from src.libs.db_manager import MongoManager
-from src.apps.repository import Repository
+from src.apps.user.repository import UserRepository
 from src.libs.exception import DBError
 
 
@@ -34,7 +34,7 @@ def test_user_repository_can_insert_data_with_valid(mockup):
     session = MongoManager().get_session()
 
     # when : DB에 데이터 저장
-    result = Repository.insert_image(session, COLLECTION_NAME, mockup)
+    result = UserRepository.insert_image(session, COLLECTION_NAME, mockup)
 
     # then : 이미지 ID 반환
     assert result.inserted_id == ID
@@ -48,7 +48,7 @@ def test_user_repository_cannot_insert_data_with_invalid(mockup):
     # then : DBError
     with pytest.raises(DBError):
         # when : DB에 데이터 저장
-        Repository.insert_image(session, COLLECTION_NAME, mockup)
+        UserRepository.insert_image(session, COLLECTION_NAME, mockup)
 
 
 def test_user_repository_cannot_insert_data_with_valid():
@@ -59,4 +59,4 @@ def test_user_repository_cannot_insert_data_with_valid():
     with pytest.raises(DBError):
         # when : DB에 데이터 저장
         session = MongoManager(WRONG_URL).get_session()
-        Repository.insert_image(session, COLLECTION_NAME, mockup)
+        UserRepository.insert_image(session, COLLECTION_NAME, mockup)

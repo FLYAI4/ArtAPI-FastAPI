@@ -1,6 +1,6 @@
 from bson.binary import Binary
 from fastapi import UploadFile
-from .repository import Repository
+from src.apps.user.repository import UserRepository
 from src.libs.util import (
     save_image_local,
     make_unique_name,
@@ -8,7 +8,7 @@ from src.libs.util import (
     )
 
 
-class Service:
+class UserService:
     async def insert_image(
         session,
         username: str,
@@ -27,7 +27,7 @@ class Service:
             "username": username,
             "image": image_banary
             }
-        Repository.insert_image(session, "tests", data)
+        UserRepository.insert_image(session, "tests", data)
 
         # 저장 완료 후 로컬 이미지 삭제
         await delete_file(user_file_path)

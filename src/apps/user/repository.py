@@ -2,7 +2,7 @@ from src.libs.exception import DBError
 from src.libs.error_code import DBErrorCode
 
 
-class Repository:
+class UserRepository:
     def insert_image(session, collection_name: str, img_data: dict) -> str:
         try:
             collection = session[collection_name]

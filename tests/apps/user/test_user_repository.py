@@ -2,7 +2,7 @@ import os
 import pytest
 from datetime import datetime
 from bson.binary import Binary
-from src.libs.exception import DBError
+from src.libs.api.exception import DBError
 from src.libs.db_manager import MongoManager
 from src.apps.user.repository import UserRepository
 

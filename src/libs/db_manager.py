@@ -1,7 +1,7 @@
 import os
 import pymongo
-from .exception import DBError
-from .error_code import DBErrorCode
+from src.libs.api.exception import DBError
+from src.libs.api.error_code import DBErrorCode
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 

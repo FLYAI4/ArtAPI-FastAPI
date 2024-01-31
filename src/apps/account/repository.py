@@ -1,8 +1,8 @@
 from src.apps.account.model import Account
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from src.libs.exception import DBError
-from src.libs.error_code import DBErrorCode
+from src.libs.api.exception import DBError
+from src.libs.api.error_code import DBErrorCode
 
 
 class AccountRepository:

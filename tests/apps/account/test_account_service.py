@@ -1,12 +1,12 @@
 import uuid
 import pytest
-from src.libs.exception import UserError
+from src.libs.api.exception import UserError
 from src.libs.db_manager import PostgreManager
 from src.apps.account.schema import UserSignupPayload, UserLoginPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
 from src.libs.token import TokenManager
-from src.libs.validator import ApiValidator
+from src.libs.api.validator import ApiValidator
 
 # Mock data
 EMAIL = "test@naver.com"

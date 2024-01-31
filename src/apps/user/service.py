@@ -1,7 +1,7 @@
 from bson.binary import Binary
 from fastapi import UploadFile
 from src.apps.user.repository import UserRepository
-from src.libs.util import (
+from src.libs.api.util import (
     save_image_local,
     make_unique_name,
     delete_file

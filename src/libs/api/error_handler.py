@@ -1,5 +1,5 @@
 from fastapi import Request
-from src.libs.exception import CustomHttpException
+from src.libs.api.exception import CustomHttpException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from src.apps.account.schema import UserSignupPayload, UserLoginPayload
 from src.apps.account.repository import AccountRepository
 from src.libs.cipher import CipherManager
-from src.libs.validator import ApiValidator
+from src.libs.api.validator import ApiValidator
 from src.libs.token import TokenManager
 
 

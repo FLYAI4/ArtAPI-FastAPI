@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
-from src.libs.util import make_response
+from src.libs.api.util import make_response
 from src.libs.db_manager import PostgreManager
 from src.apps.account.service import AccountService
 from src.apps.account.schema import UserSignupPayload, UserLoginPayload

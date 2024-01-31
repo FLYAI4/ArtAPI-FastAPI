@@ -2,7 +2,7 @@ import uuid
 import pytest
 import base64
 from src.libs.db_manager import PostgreManager
-from src.libs.exception import DBError
+from src.libs.api.exception import DBError
 from src.apps.account.repository import AccountRepository
 
 # Mock data

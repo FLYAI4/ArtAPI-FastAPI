@@ -1,10 +1,10 @@
 from pymongo import MongoClient
 from fastapi import APIRouter, Depends, UploadFile, File, Header
 from src.libs.db_manager import MongoManager
-from src.libs.exception import UserError
-from src.libs.error_code import UserRequestErrorCode
+from src.libs.api.exception import UserError
+from src.libs.api.error_code import UserRequestErrorCode
 from src.apps.user.service import UserService
-from src.libs.util import make_response
+from src.libs.api.util import make_response
 
 user = APIRouter(prefix="/user")
 

@@ -4,6 +4,7 @@ from fastapi import UploadFile
 
 
 def create_folder_if_not_exists(folder_path: str) -> str:
+    """Create folder if not exists."""
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         return "Success create folder."
@@ -11,6 +12,7 @@ def create_folder_if_not_exists(folder_path: str) -> str:
 
 
 def generate_unique_id(user_id: str) -> str:
+    """Generate unique id according to API request."""
     id = user_id.split("@")[0]
     current_time = datetime.now()
     timestamp = current_time.strftime("%Y%m%d_%H%M%S")
@@ -18,7 +20,8 @@ def generate_unique_id(user_id: str) -> str:
 
 
 async def save_file_local(file: UploadFile, user_unique_id: str, file_name: str) -> str:
-    # 파일 저장 경로 설정
+    """Save file to local storage folder"""
+    # Set file path
     api_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
     libs_path = os.path.abspath(os.path.join(api_path, os.path.pardir))
     src_path = os.path.abspath(os.path.join(libs_path, os.path.pardir))
@@ -26,11 +29,11 @@ async def save_file_local(file: UploadFile, user_unique_id: str, file_name: str)
     storage_path = os.path.abspath(os.path.join(root_path, 'storage'))
     create_folder_if_not_exists(storage_path)
 
-    # user별 별도 폴더 설정
+    # Create folders for each user
     user_path = os.path.abspath(os.path.join(storage_path, user_unique_id))
     create_folder_if_not_exists(user_path)
 
-    # file 저장
+    # Save file
     file_extension = file.filename.split(".")[-1]
     full_file_name = file_name + "." + file_extension
     user_file_path = os.path.abspath(os.path.join(user_path, full_file_name))
@@ -40,6 +43,7 @@ async def save_file_local(file: UploadFile, user_unique_id: str, file_name: str)
 
 
 async def delete_file(file_path):
+    """Delete file if exists."""
     if os.path.exists(file_path):
         os.remove(file_path)
         return "Success delete file."
@@ -47,6 +51,7 @@ async def delete_file(file_path):
 
 
 def make_response(resp: any):
+    """Make response to send response."""
     return {
         "meta": {
             "code": 200,

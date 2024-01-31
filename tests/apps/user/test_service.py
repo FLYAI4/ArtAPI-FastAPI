@@ -6,12 +6,12 @@ from src.apps.user.service import UserService
 from src.libs.db_manager import MongoManager
 
 
-apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-img_path = os.path.abspath(os.path.join(apps_path, "test_img"))
+user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+test_img_path = os.path.abspath(os.path.join(user_path, "test_img"))
 
 # MOCK data
 USERNAME = "kim"
-IMAGE_PATH = os.path.abspath(os.path.join(img_path, "test.jpg"))
+IMAGE_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
 
 app = FastAPI()
 

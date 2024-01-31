@@ -2,18 +2,18 @@ import os
 import pytest
 from datetime import datetime
 from bson.binary import Binary
+from src.libs.exception import DBError
 from src.libs.db_manager import MongoManager
 from src.apps.user.repository import UserRepository
-from src.libs.exception import DBError
 
 
-apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-img_path = os.path.abspath(os.path.join(apps_path, "test_img"))
+user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+test_img_path = os.path.abspath(os.path.join(user_path, "test_img"))
 
 # MOCK data
 COLLECTION_NAME = "tests"
 USERNAME = "kim",
-IMAGE_PATH = os.path.abspath(os.path.join(img_path, "test.jpg"))
+IMAGE_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
 ID = str(datetime.utcnow())
 
 

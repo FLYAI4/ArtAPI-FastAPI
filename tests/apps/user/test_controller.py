@@ -7,11 +7,11 @@ from src.apps import create_app
 # TODO : 작품이 아닌 일반 사진을 넣었을 때 어떻게 처리할 것인지 고민!!
 
 # Mock data
-apps_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-img_path = os.path.abspath(os.path.join(apps_path, "test_img"))
+user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+test_img_path = os.path.abspath(os.path.join(user_path, "test_img"))
 
 USERNAME = "kim"
-IMAGE_PATH = os.path.abspath(os.path.join(img_path, "test.jpg"))
+IMAGE_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
 
 
 @pytest.fixture

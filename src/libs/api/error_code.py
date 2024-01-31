@@ -23,15 +23,10 @@ class SystemErrorCode(Enum):
 
 
 class UserRequestErrorCode(Enum):
-    NonHeaderError = {
+    NonMatchEmail = {
         "code": 401,
-        "message": "There is non header. Please log in again.",
-        "log": "User request fail with non header."
-    }
-    NonFileError = {
-        "code": 401,
-        "message": "There is non file. Please request again.",
-        "log": "User request fail with non file."
+        "message": "The ID is not in email format. Please enter again.",
+        "log": "User service sign up fail with wrong email."
     }
     AlreadyUserError = {
         "code": 401,

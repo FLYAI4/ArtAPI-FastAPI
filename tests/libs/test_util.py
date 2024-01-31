@@ -1,6 +1,6 @@
 import os
 import pytest
-from src.libs.util import create_folder_if_not_exists, delete_file
+from src.libs.api.util import create_folder_if_not_exists, delete_file
 
 # Mock
 libs_path = os.path.abspath(os.path.join(__file__, os.path.pardir))

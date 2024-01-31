@@ -7,7 +7,6 @@ from src.libs.db_manager import PostgreManager
 
 
 # Mock data
-ID = "test@naver.com"
 PASSWORD = "test1234"
 NAME="별명"
 GENDER = "male"
@@ -37,7 +36,7 @@ def session():
 
 def test_account_controller_can_signup_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
-    unique_id = ID + str(uuid.uuid4())[:10]
+    unique_id = "accountcontroller1@naver.com"
     signup_mockup["id"] = unique_id
 
     # when : 회원가입 요청
@@ -59,7 +58,7 @@ def test_account_controller_can_signup_with_valid(client, session, signup_mockup
 def test_account_controller_cannot_signup_with_invalid(client):
     # given : 유효하지 않은 payload(name 없이)
     wrong_data = {
-        "id": ID,
+        "id": "accountcontroller2@naver.com",
         "password": PASSWORD,
         "gender": GENDER,
         "age": AGE
@@ -78,7 +77,7 @@ def test_account_controller_cannot_signup_with_invalid(client):
 
 def test_account_controller_can_login_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
-    unique_id = ID + str(uuid.uuid4())[:10]
+    unique_id = "accountcontroller3@naver.com"
     signup_mockup["id"] = unique_id
 
     response = client.post(
@@ -113,7 +112,7 @@ def test_account_controller_can_login_with_valid(client, session, signup_mockup)
 def test_account_controller_cannot_login_with_invalid(client):
     # given : 유효하지 않은 payload(password 없이)
     wrong_data = {
-        "id": ID
+        "id": "accountcontroller4@naver.com"
     }
 
     # when : 로그인 요청

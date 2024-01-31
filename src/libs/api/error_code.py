@@ -23,6 +23,11 @@ class SystemErrorCode(Enum):
 
 
 class UserRequestErrorCode(Enum):
+    NonMatchEmail = {
+        "code": 401,
+        "message": "The ID is not in email format. Please enter again.",
+        "log": "User service sign up fail with wrong email."
+    }
     AlreadyUserError = {
         "code": 401,
         "message": "The user email is already created. Please sign up another email.",

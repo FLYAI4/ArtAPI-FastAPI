@@ -1,3 +1,4 @@
+import re
 from sqlalchemy.orm import Session
 from src.libs.api.exception import UserError
 from src.libs.cipher import CipherManager
@@ -6,6 +7,11 @@ from src.apps.account.repository import AccountRepository
 
 
 class ApiValidator:
+    def check_user_id_pattern(user_id: str):
+        pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not re.match(pattern, user_id):
+            raise UserError(**UserRequestErrorCode.NonMatchEmail.value)
+
     def check_user_existence(session: Session, user_id: str):
         all_user_account = AccountRepository.get_all_user_account(session)
         if user_id in all_user_account:

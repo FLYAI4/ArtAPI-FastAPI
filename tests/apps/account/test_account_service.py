@@ -2,50 +2,42 @@ import uuid
 import pytest
 from src.libs.api.exception import UserError
 from src.libs.db_manager import PostgreManager
-from src.libs.api.util import generate_unique_id
-from src.apps.account.schema import UserSignupPayload, UserLoginPayload
+from src.apps.account.schema import UserSignupPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
 from src.libs.token import TokenManager
 from src.libs.api.validator import ApiValidator
 
 # Mock data
-ID = "test@naver.com"
 PASSWORD = "test1234"
 NAME="별명"
 GENDER = "male"
 AGE = "20대"
 
 
-@pytest.fixture
-def signupmockup():
-    yield UserSignupPayload(
-        id=generate_unique_id(ID),
-        password=PASSWORD,
-        name=NAME,
-        gender=GENDER,
-        age=AGE
-    )
-
-
-@pytest.fixture
-def loginmockup():
-    yield UserLoginPayload(
-        id=generate_unique_id(ID),
-        password=PASSWORD
-    )
-
 
 @pytest.fixture
 def session():
     yield PostgreManager().get_session()
 
+@pytest.mark.asyncio
+async def test_account_service_cannot_signup_user_with_wrong_id(session):
+    unique_id = "wrongid"
+    mockup = UserSignupPayload(
+        id=unique_id,
+        password=PASSWORD,
+        name=NAME,
+        gender=GENDER,
+        age=AGE
+    )
+    with pytest.raises(UserError):
+        AccountService.signup_user(session, mockup)
+    
 
-@pytest.mark.order(1)
 @pytest.mark.asyncio
 async def test_account_service_cannot_signup_user_with_existence_user(session):
     # given : 이미 가입된 Email
-    unique_id = generate_unique_id(ID)
+    unique_id = "accountservice1@naver.com"
     mockup = UserSignupPayload(
         id=unique_id,
         password=PASSWORD,
@@ -69,7 +61,7 @@ async def test_account_service_cannot_signup_user_with_existence_user(session):
 @pytest.mark.asyncio
 async def test_account_service_can_signup_user_with_valid(session):
     # given : 유효한 사용자 정보
-    unique_id = generate_unique_id(ID)
+    unique_id = "accountservice2@naver.com"
     mockup = UserSignupPayload(
         id=unique_id,
         password=PASSWORD,
@@ -92,7 +84,7 @@ async def test_account_service_can_signup_user_with_valid(session):
 @pytest.mark.asyncio
 async def test_account_service_cannot_login_with_no_signup_account(session):
     # given : 가입되지 않은 계정 로그인
-    wrong_id = "wrong@naver.com"
+    wrong_id = "accountservice3@naver.com"
 
     # when : 사용자 로그인 요청
     with pytest.raises(UserError):
@@ -103,7 +95,7 @@ async def test_account_service_cannot_login_with_no_signup_account(session):
 @pytest.mark.asyncio
 async def test_account_service_cannot_login_with_wrong_password(session):
     # given : 유효한 로그인 정보 + 잘못된 비밀번호
-    unique_id = generate_unique_id(ID)
+    unique_id = "accountservice4@naver.com"
     mockup = UserSignupPayload(
         id=unique_id,
         password=PASSWORD,
@@ -135,7 +127,7 @@ async def test_account_service_cannot_login_with_wrong_password(session):
 @pytest.mark.asyncio
 async def test_account_service_can_login_with_valid(session):
     # given : 유효한 로그인 정보
-    unique_id = generate_unique_id(ID)
+    unique_id = "accountservice5@naver.com"
     mockup = UserSignupPayload(
         id=unique_id,
         password=PASSWORD,

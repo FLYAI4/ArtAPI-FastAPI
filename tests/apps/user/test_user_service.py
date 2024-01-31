@@ -10,7 +10,7 @@ user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
 test_img_path = os.path.abspath(os.path.join(user_path, "test_img"))
 
 # MOCK data
-USERNAME = "kim"
+USERID = "user3@naver.com"
 IMAGE_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
 
 app = FastAPI()
@@ -19,7 +19,7 @@ app = FastAPI()
 @app.post("/test/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     session = MongoManager().get_session()
-    result = await UserService.insert_image(session, USERNAME, file)
+    result = await UserService.insert_image(session, USERID, file)
     return result
 
 
@@ -36,4 +36,4 @@ async def test_user_service_can_insert_image_with_valid():
 
     # then : 정상 처리
     assert response.status_code == 200
-    assert response.json()["username"] == USERNAME
+    assert response.json()["id"] == USERID

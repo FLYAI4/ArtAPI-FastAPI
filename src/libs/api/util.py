@@ -10,23 +10,32 @@ def create_folder_if_not_exists(folder_path: str) -> str:
     return "Already exist folder."
 
 
-def make_unique_name(username: str, extension=".png") -> str:
+def generate_unique_id(user_id: str) -> str:
+    id = user_id.split("@")[0]
     current_time = datetime.now()
     timestamp = current_time.strftime("%Y%m%d_%H%M%S")
+    return f"{timestamp}_{id}"
 
-    return f"{timestamp}_{username}{extension}"
 
+async def save_file_local(file: UploadFile, user_unique_id: str, file_name: str) -> str:
+    # 파일 저장 경로 설정
+    api_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+    libs_path = os.path.abspath(os.path.join(api_path, os.path.pardir))
+    src_path = os.path.abspath(os.path.join(libs_path, os.path.pardir))
+    root_path = os.path.abspath(os.path.join(src_path, os.path.pardir))
+    storage_path = os.path.abspath(os.path.join(root_path, 'storage'))
+    create_folder_if_not_exists(storage_path)
 
-async def save_image_local(image_file: UploadFile, file_name: str) -> str:
-    libs_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
-    imgs_path = os.path.abspath(os.path.join(libs_path, "img"))
-    create_folder_if_not_exists(imgs_path)
+    # user별 별도 폴더 설정
+    user_path = os.path.abspath(os.path.join(storage_path, user_unique_id))
+    create_folder_if_not_exists(user_path)
 
-    user_file_path = os.path.abspath(os.path.join(imgs_path, file_name))
-
+    # file 저장
+    file_extension = file.filename.split(".")[-1]
+    full_file_name = file_name + "." + file_extension
+    user_file_path = os.path.abspath(os.path.join(user_path, full_file_name))
     with open(user_file_path, "wb") as f:
-        f.write(image_file.file.read())
-
+        f.write(file.file.read())
     return user_file_path
 
 

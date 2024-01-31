@@ -2,6 +2,7 @@ import os
 import pytest
 from datetime import datetime
 from bson.binary import Binary
+from src.libs.api.util import generate_unique_id
 from src.libs.api.exception import DBError
 from src.libs.db_manager import MongoManager
 from src.apps.user.repository import UserRepository
@@ -11,10 +12,10 @@ user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
 test_img_path = os.path.abspath(os.path.join(user_path, "test_img"))
 
 # MOCK data
-COLLECTION_NAME = "tests"
-USERNAME = "kim",
+COLLECTION_NAME = "user_generated"
+ID = "user2@naver.com"
 IMAGE_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
-ID = str(datetime.utcnow())
+user_unique_id = generate_unique_id(ID)
 
 
 @pytest.fixture
@@ -22,9 +23,8 @@ def mockup():
     with open(IMAGE_PATH, "rb") as f:
         image_banary = Binary(f.read())
     yield {
-        "_id": ID,
-        "username": USERNAME,
-        "image": image_banary
+        "_id": user_unique_id,
+        "origin_img": image_banary
     }
 
 
@@ -37,7 +37,7 @@ def test_user_repository_can_insert_data_with_valid(mockup):
     result = UserRepository.insert_image(session, COLLECTION_NAME, mockup)
 
     # then : 이미지 ID 반환
-    assert result.inserted_id == ID
+    assert result.inserted_id == user_unique_id
 
 
 @pytest.mark.order(2)

@@ -2,6 +2,7 @@ import uuid
 import pytest
 from src.libs.api.exception import UserError
 from src.libs.db_manager import PostgreManager
+from src.libs.api.util import generate_unique_id
 from src.apps.account.schema import UserSignupPayload, UserLoginPayload
 from src.apps.account.repository import AccountRepository
 from src.apps.account.service import AccountService
@@ -9,7 +10,7 @@ from src.libs.token import TokenManager
 from src.libs.api.validator import ApiValidator
 
 # Mock data
-EMAIL = "test@naver.com"
+ID = "test@naver.com"
 PASSWORD = "test1234"
 NAME="별명"
 GENDER = "male"
@@ -19,7 +20,7 @@ AGE = "20대"
 @pytest.fixture
 def signupmockup():
     yield UserSignupPayload(
-        email=EMAIL,
+        id=generate_unique_id(ID),
         password=PASSWORD,
         name=NAME,
         gender=GENDER,
@@ -30,7 +31,7 @@ def signupmockup():
 @pytest.fixture
 def loginmockup():
     yield UserLoginPayload(
-        email=EMAIL,
+        id=generate_unique_id(ID),
         password=PASSWORD
     )
 
@@ -44,16 +45,16 @@ def session():
 @pytest.mark.asyncio
 async def test_account_service_cannot_signup_user_with_existence_user(session):
     # given : 이미 가입된 Email
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    unique_id = generate_unique_id(ID)
     mockup = UserSignupPayload(
-        email=unique_email,
+        id=unique_id,
         password=PASSWORD,
         name=NAME,
         gender=GENDER,
         age=AGE
     )
     result = AccountService.signup_user(session, mockup)
-    assert result == unique_email
+    assert result == unique_id
 
     # then : UserError 중복된 이메일
     with pytest.raises(UserError):
@@ -61,16 +62,16 @@ async def test_account_service_cannot_signup_user_with_existence_user(session):
         AccountService.signup_user(session, mockup)
 
     # clean
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id
 
 
 @pytest.mark.asyncio
 async def test_account_service_can_signup_user_with_valid(session):
     # given : 유효한 사용자 정보
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    unique_id = generate_unique_id(ID)
     mockup = UserSignupPayload(
-        email=unique_email,
+        id=unique_id,
         password=PASSWORD,
         name=NAME,
         gender=GENDER,
@@ -81,11 +82,11 @@ async def test_account_service_can_signup_user_with_valid(session):
     result = AccountService.signup_user(session, mockup)
 
     # then : 요청한 이메일 동일
-    assert result == unique_email
+    assert result == unique_id
 
     # clean
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id
 
 
 @pytest.mark.asyncio
@@ -102,9 +103,9 @@ async def test_account_service_cannot_login_with_no_signup_account(session):
 @pytest.mark.asyncio
 async def test_account_service_cannot_login_with_wrong_password(session):
     # given : 유효한 로그인 정보 + 잘못된 비밀번호
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    unique_id = generate_unique_id(ID)
     mockup = UserSignupPayload(
-        email=unique_email,
+        id=unique_id,
         password=PASSWORD,
         name=NAME,
         gender=GENDER,
@@ -112,13 +113,13 @@ async def test_account_service_cannot_login_with_wrong_password(session):
     )
 
     result = AccountService.signup_user(session, mockup)
-    assert result == unique_email
+    assert result == unique_id
 
     wrong_password = "wrong1234"
 
     # when : 사용자 로그인 요청
-    user_info = AccountRepository.get_user_account(session, unique_email)
-    assert user_info["email"] == unique_email
+    user_info = AccountRepository.get_user_account(session, unique_id)
+    assert user_info["id"] == unique_id
 
     # then : UserError 반환
     with pytest.raises(UserError):
@@ -127,16 +128,16 @@ async def test_account_service_cannot_login_with_wrong_password(session):
                                          wrong_password)
 
     # clean
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id
 
 
 @pytest.mark.asyncio
 async def test_account_service_can_login_with_valid(session):
     # given : 유효한 로그인 정보
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
+    unique_id = generate_unique_id(ID)
     mockup = UserSignupPayload(
-        email=unique_email,
+        id=unique_id,
         password=PASSWORD,
         name=NAME,
         gender=GENDER,
@@ -144,14 +145,14 @@ async def test_account_service_can_login_with_valid(session):
     )
 
     result = AccountService.signup_user(session, mockup)
-    assert result == unique_email
+    assert result == unique_id
 
     # when : token 생성
     result = AccountService.login_user(session, mockup)
 
     # then : token 값 확인
     decode_token = TokenManager().decode_token(result["token"])
-    assert decode_token["email"] == result["email"]
+    assert decode_token["id"] == result["id"]
 
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id

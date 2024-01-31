@@ -7,7 +7,7 @@ from src.libs.db_manager import PostgreManager
 
 
 # Mock data
-EMAIL = "test@naver.com"
+ID = "test@naver.com"
 PASSWORD = "test1234"
 NAME="별명"
 GENDER = "male"
@@ -37,8 +37,8 @@ def session():
 
 def test_account_controller_can_signup_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
-    signup_mockup["email"] = unique_email
+    unique_id = ID + str(uuid.uuid4())[:10]
+    signup_mockup["id"] = unique_id
 
     # when : 회원가입 요청
     response = client.post(
@@ -49,17 +49,17 @@ def test_account_controller_can_signup_with_valid(client, session, signup_mockup
     # then : 정상 응답
     assert response.status_code == 200
     assert response.json()["meta"]["message"] == "ok"
-    assert response.json()["data"] == unique_email
+    assert response.json()["data"] == unique_id
 
     # clean
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id
 
 
 def test_account_controller_cannot_signup_with_invalid(client):
     # given : 유효하지 않은 payload(name 없이)
     wrong_data = {
-        "email": EMAIL,
+        "id": ID,
         "password": PASSWORD,
         "gender": GENDER,
         "age": AGE
@@ -78,8 +78,8 @@ def test_account_controller_cannot_signup_with_invalid(client):
 
 def test_account_controller_can_login_with_valid(client, session, signup_mockup):
     # given : 유효한 payload
-    unique_email = EMAIL + str(uuid.uuid4())[:10]
-    signup_mockup["email"] = unique_email
+    unique_id = ID + str(uuid.uuid4())[:10]
+    signup_mockup["id"] = unique_id
 
     response = client.post(
         "/account/signup",
@@ -91,7 +91,7 @@ def test_account_controller_can_login_with_valid(client, session, signup_mockup)
 
     # when : 로그인 요청
     login_mockup = {
-        "email": unique_email,
+        "id": unique_id,
         "password": PASSWORD
     }
     response = client.post(
@@ -102,18 +102,18 @@ def test_account_controller_can_login_with_valid(client, session, signup_mockup)
     # then : 정상 응답
     assert response.status_code == 200
     assert response.json()["meta"]["message"] == "ok"
-    assert response.json()["data"]["email"] == unique_email
+    assert response.json()["data"]["id"] == unique_id
     assert response.json()["data"]["token"]
 
     # clean
-    result = AccountRepository.delete_user_account(session, unique_email)
-    assert result == unique_email
+    result = AccountRepository.delete_user_account(session, unique_id)
+    assert result == unique_id
 
 
 def test_account_controller_cannot_login_with_invalid(client):
     # given : 유효하지 않은 payload(password 없이)
     wrong_data = {
-        "email": EMAIL
+        "id": ID
     }
 
     # when : 로그인 요청

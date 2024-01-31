@@ -2,7 +2,7 @@ import pydantic
 
 
 class UserSignupPayload(pydantic.BaseModel):
-    email: str
+    id: str
     password: str
     name: str
     gender: str
@@ -10,5 +10,5 @@ class UserSignupPayload(pydantic.BaseModel):
 
 
 class UserLoginPayload(pydantic.BaseModel):
-    email: str
+    id: str
     password: str

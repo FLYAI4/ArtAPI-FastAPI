@@ -8,29 +8,29 @@ from src.libs.token import TokenManager
 
 class AccountService:
     def signup_user(session: Session, payload: UserSignupPayload):
-        data = payload.model_dump()
-        ApiValidator.check_user_existence(session, data["email"])
+        sign_data = payload.model_dump()
+        ApiValidator.check_user_existence(session, sign_data["id"])
 
         # Encrypt password
-        encrypt_password = CipherManager().encrypt_password(data["password"])
-        data["password"] = encrypt_password
+        encrypt_password = CipherManager().encrypt_password(sign_data["password"])
+        sign_data["password"] = encrypt_password
 
-        result = AccountRepository.insert_user_account(session, data)
+        result = AccountRepository.insert_user_account(session, sign_data)
         return result
 
     def login_user(session: Session, payload: UserLoginPayload):
-        data = payload.model_dump()
+        login_data = payload.model_dump()
 
         # Validate ID, password
-        ApiValidator.check_user_id(session, data["email"])
-        user_info = AccountRepository.get_user_account(session, data["email"])
+        ApiValidator.check_user_id(session, login_data["id"])
+        user_info = AccountRepository.get_user_account(session, login_data["id"])
         ApiValidator.check_user_password(session,
                                          user_info["password"],
-                                         data["password"])
+                                         login_data["password"])
 
         # Generate token
-        token = TokenManager().create_token(user_info["email"])
+        token = TokenManager().create_token(user_info["id"])
         return {
-            "email": user_info["email"],
+            "id": user_info["id"],
             "token": token
         }

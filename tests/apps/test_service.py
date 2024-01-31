@@ -19,7 +19,7 @@ app = FastAPI()
 @app.post("/test/uploadfile/")
 async def create_upload_file(file: UploadFile = File(...)):
     session = MongoManager().get_session()
-    result = await Service(session).insert_image(USERNAME, file)
+    result = await Service.insert_image(session, USERNAME, file)
     return result
 
 

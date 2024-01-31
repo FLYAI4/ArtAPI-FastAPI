@@ -9,10 +9,11 @@ from src.libs.util import (
 
 
 class Service:
-    def __init__(self, session) -> None:
-        self.repo = Repository(session)
-
-    async def insert_image(self, username: str, image_file: UploadFile) -> str:
+    async def insert_image(
+        session,
+        username: str,
+        image_file: UploadFile
+    ) -> dict:
         file_name = make_unique_name(username, extension=".png")
 
         # img 파일의 재사용성을 고려해 로컬에 이미지 저장
@@ -26,7 +27,7 @@ class Service:
             "username": username,
             "image": image_banary
             }
-        self.repo.insert_image("tests", data)
+        Repository.insert_image(session, "tests", data)
 
         # 저장 완료 후 로컬 이미지 삭제
         await delete_file(user_file_path)

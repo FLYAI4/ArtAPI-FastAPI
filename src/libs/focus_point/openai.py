@@ -17,6 +17,10 @@ class FocusPointManager:
     def generate_content_and_coord(self, img_data: str = None):
         content = self.generate_content(img_data)
         refined_content = self.refine_content(content)
+        # 좌표를 못찾을 경우 한 번더 실행
+        if not refined_content:
+            content = self.generate_content(img_data)
+            refined_content = self.refine_content(content)
         return refined_content
 
     def generate_content(self, img_data: str):

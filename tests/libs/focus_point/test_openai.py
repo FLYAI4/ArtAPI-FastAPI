@@ -111,6 +111,18 @@ Now, for the coordinates of three keywords within the image:
 
 
 @pytest.mark.asyncio
+async def test_cannot_refine_content_with_white_image():
+    # given : 특징이 없는 흰색 이미지
+    WHITE_IMG_PATH = os.path.abspath(os.path.join(test_img_path, "white.png"))
+    with open(WHITE_IMG_PATH, "rb") as f:
+        wrong_image = base64.b64encode(f.read()).decode('utf-8')
+    # when : 파싱 요청
+    refined_content = FocusPointManager().generate_content_and_coord(wrong_image)
+    # then : 빈 딕셔너리 응답
+    assert not refined_content
+
+
+@pytest.mark.asyncio
 async def test_can_generate_content_and_coord_value_with_valid(img_data):
     # given : 유효한 데이터(이미지)
     # when : 생성 요청

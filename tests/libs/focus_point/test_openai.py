@@ -1,7 +1,6 @@
 import os
 import pytest
 import base64
-import re
 from dotenv import load_dotenv
 from src.libs.focus_point.openai import FocusPointManager
 from src.libs.api.exception import FocusPointError
@@ -42,7 +41,7 @@ async def test_cannot_content_and_coord_value_with_no_image():
 
 
 @pytest.mark.asyncio
-async def test_cannot_content_and_coord_with_no_coord():
+async def test_cannot_refine_content_wrong_content():
     # given : 잘못된 데이터(좌표 값이 없는)
     wrong_content = """
 Unfortunately, without the name or context of a particular artist, I am unable to provide a factual biography or discuss their personal achievements. However, I can still discuss the image provided in terms of its visual elements and style.
@@ -54,49 +53,38 @@ The image depicts a lush, rolling landscape with terraced fields, perhaps tea fi
 Considering the elements in this image, here are three keywords with their respective coordinates:
 """
     # when : 파싱 요청
-    all_coords = extract_coord_keyword(wrong_content)
+    refined_content = FocusPointManager().refine_content(wrong_content)
     # then : 빈 딕셔너리 응답
-    assert not all_coords
+    assert not refined_content
+    
+    
+@pytest.mark.asyncio
+async def test_cannot_refine_content_wrong_json_format():
+    # given : 잘못된 데이터(json 값을 잘 못 주는 경우)
+    wrong_content = """
+Unfortunately, without the name or context of a particular artist, I am unable to provide a factual biography or discuss their personal achievements. However, I can still discuss the image provided in terms of its visual elements and style.
 
+This painting is done in a highly stylized manner, with vibrant colors and exaggerated features that are reminiscent of Naïve or Folk Art styles. The bright, solid colors and the flattened perspective create a sense of whimsy and simplicity. There's a clear influence of pastoral and landscape traditions, yet with a modern twist in the way the natural elements are depicted with a surreal quality.
 
-def concat_content_coord(content: str, coord_dict: dict):
-    # 설명 정제
-    keyword = ':'
-    if keyword in content:
-        content = content[:content.find(keyword)].strip()
-    content = content.replace("\n", " ").strip()
-    print(content)
+The image depicts a lush, rolling landscape with terraced fields, perhaps tea fields or rice paddies, which suggests an East Asian setting. There are trees distributed in a way that complements the curves of the land. In the distance, a winding river leads towards a calm, blue lake, surrounded by layered hills or mountains, emphasizing the depth of the scene. Hot air balloons float gently in the sky, adding a playful and fantastic element to the scene. A small red brick structure on the left adds a hint of human presence without overtaking the natural beauty of the scene.
 
-    response = {}
-    for key, item in coord_dict.items():
-        response[key] = {"coord": item, "context": ""}
-    # print(response)
-
-    for sentence in list(content.split('. ')):
-        for key in coord_dict.keys():
-            if key in sentence:
-                response[key]["context"] += sentence + ". "
-    return response
-
-
-def extract_coord_keyword(content: str):
-    # TODO : 좌표 추출 오류 수정
-    # TODO : 좌표 추출 코드 수정
-    import json
-    pattern = r'```json(.*?)```'
-    json_data = re.search(pattern, content, re.DOTALL)
-    data_dict = {}
-    if json_data:
-        json_string = json_data.group(1).strip()
-
-        # JSON 문자열을 딕셔너리로 파싱
-        data_dict = json.loads(json_string)
-
-    return data_dict
+Considering the elements in this image, here are three keywords with their respective coordinates:
+    ```json
+    {
+      'pearl_earring': [[233, 458, 278, 504], [1,1,1,1]],
+      'blue_headscarf': [[120, 87, 360, 210]],
+      'young_woman': [[76, 20, 478, 720]]
+    }
+    ```
+"""
+    # when : 파싱 요청
+    refined_content = FocusPointManager().refine_content(wrong_content)
+    # then : 빈 딕셔너리 응답
+    assert not refined_content
 
 
 @pytest.mark.asyncio
-async def test_can_extract_word():
+async def test_can_refine_content():
     # given 유효한 데이터
     content = """
 The artwork displayed is an idyllic landscape painting that appears to employ a stylized realism. The medium looks like it could be acrylic or oil on canvas, given the vibrancy of the colors and the smooth texture of the painted surface. The style presents a harmonized composition with vibrant colors, and there's a certain rhythm created by the patterns of the fields. This style is reminiscent of folk art or naive art, which often features simplified forms and a sense of serenity.
@@ -109,46 +97,23 @@ Now, for the coordinates of three keywords within the image:
 2. 'river',
 3. 'terraced fields'.
 
-```json
-{
-  "hot air balloon": [[74,35,117,84], [200,29,236,66], [411,43,442,69]],
-  "river": [[223,285,400,406]],
-  "terraced fields": [[0,228,600,477]]
-}
+    ```json
+    {
+      "pearl_earring": [[233, 458, 278, 504], [1,1,1,1]],
+      "blue_headscarf": [[120, 87, 360, 210]],
+      "young_woman": [[76, 20, 478, 720]]
+    }
+    ```
 ```
     """
-    coord_dict = extract_coord_keyword(content)
-    print(coord_dict)
-    assert coord_dict
-
-    response = concat_content_coord(content, coord_dict)
-    print(response)
-
-
+    refined_content = FocusPointManager().refine_content(content)
+    assert refined_content
 
 
 @pytest.mark.asyncio
 async def test_can_generate_content_and_coord_value_with_valid(img_data):
     # given : 유효한 데이터(이미지)
     # when : 생성 요청
-    content = FocusPointManager().generate_content_and_coord(img_data)
+    refined_content = FocusPointManager().generate_content_and_coord(img_data)
     # then : 정상 응답
-    print(content)
-    assert len(content) > 0
-
-    # given : 정상 응답된 값
-    # when : 값에서 해설 키워드/좌표 추출
-    coord_dict = extract_coord_keyword(content)
-    assert coord_dict
-
-    # then : 키워드/좌표/키워드 해설 추출
-    # TODO : 좌표가 정상 추출되는지 확인
-    assert len(coord_dict) > 0
-
-    # given : 좌표값이 있는 경우
-    if coord_dict:
-        #when : 좌표값과 content 내용을 합차기
-        response = concat_content_coord(content, coord_dict)
-    # then : 출력값 응답
-    print(response)
-    assert response
+    assert len(refined_content) > 0

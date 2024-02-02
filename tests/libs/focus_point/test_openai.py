@@ -14,6 +14,27 @@ TOKEN_KEY = os.environ.get("OEPN_AI_TOKEN_KEY", 'utf-8')
 
 # Mock data
 IMG_PATH = os.path.abspath(os.path.join(test_img_path, "test.jpg"))
+CONTENT = """
+Unfortunately, without the name or context of a particular artist, I am unable to provide a factual biography or discuss their personal achievements.
+The artwork displayed is an idyllic landscape painting that appears to employ a stylized realism. The medium looks like it could be acrylic or oil on canvas, given the vibrancy of the colors and the smooth texture of the painted surface. The style presents a harmonized composition with vibrant colors, and there's a certain rhythm created by the patterns of the fields. This style is reminiscent of folk art or naive art, which often features simplified forms and a sense of serenity.
+
+The painting depicts a lush green landscape with a meandering river leading towards a tranquil blue lake. Terraced fields, perhaps indicative of rice paddies or tea plantations, add a patterned texture to the rolling hills. Trees intermittently dot the landscape, and the presence of hot air balloons in the sky introduces a whimsical or fantastical element to the scene. There's a structure visible to the left, possibly part of a house or an outbuilding with a red brick chimney and a white parasol, suggesting a human presence without showing actual figures.
+
+Now, for the coordinates of three keywords within the image:
+
+1. 'hot air balloon',
+2. 'river',
+3. 'terraced fields'.
+
+    ```json
+    {
+      "pearl_earring": [[233, 458, 278, 504], [1,1,1,1]],
+      "blue_headscarf": [[120, 87, 360, 210]],
+      "young_woman": [[76, 20, 478, 720]]
+    }
+    ```
+```
+"""
 
 
 @pytest.fixture
@@ -55,11 +76,12 @@ The image depicts a lush, rolling landscape with terraced fields, perhaps tea fi
 Considering the elements in this image, here are three keywords with their respective coordinates:
 """
     # when : 파싱 요청
-    refined_content = FocusPointManager().refine_content(wrong_content)
+    main_content = FocusPointManager().get_main_content(wrong_content)
+    coord_content = FocusPointManager().get_coord_content(wrong_content, main_content)
     # then : 빈 딕셔너리 응답
-    assert not refined_content
-    
-    
+    assert not coord_content
+
+
 @pytest.mark.asyncio
 async def test_cannot_refine_content_wrong_json_format():
     # given : 잘못된 데이터(json 값을 잘 못 주는 경우)
@@ -80,48 +102,43 @@ Considering the elements in this image, here are three keywords with their respe
     ```
 """
     # when : 파싱 요청
-    refined_content = FocusPointManager().refine_content(wrong_content)
+    main_content = FocusPointManager().get_main_content(wrong_content)
+    coord_content = FocusPointManager().get_coord_content(wrong_content, main_content)
     # then : 빈 딕셔너리 응답
-    assert not refined_content
+    assert not coord_content
+
+
+@pytest.mark.asyncio
+async def test_can_get_main_content():
+    main_content = FocusPointManager().get_main_content(CONTENT)
+    print(main_content)
+    assert len(main_content) > 0
 
 
 @pytest.mark.asyncio
 async def test_can_refine_content():
     # given 유효한 데이터
-    content = """
-The artwork displayed is an idyllic landscape painting that appears to employ a stylized realism. The medium looks like it could be acrylic or oil on canvas, given the vibrancy of the colors and the smooth texture of the painted surface. The style presents a harmonized composition with vibrant colors, and there's a certain rhythm created by the patterns of the fields. This style is reminiscent of folk art or naive art, which often features simplified forms and a sense of serenity.
-
-The painting depicts a lush green landscape with a meandering river leading towards a tranquil blue lake. Terraced fields, perhaps indicative of rice paddies or tea plantations, add a patterned texture to the rolling hills. Trees intermittently dot the landscape, and the presence of hot air balloons in the sky introduces a whimsical or fantastical element to the scene. There's a structure visible to the left, possibly part of a house or an outbuilding with a red brick chimney and a white parasol, suggesting a human presence without showing actual figures.
-
-Now, for the coordinates of three keywords within the image:
-
-1. 'hot air balloon',
-2. 'river',
-3. 'terraced fields'.
-
-    ```json
-    {
-      "pearl_earring": [[233, 458, 278, 504], [1,1,1,1]],
-      "blue_headscarf": [[120, 87, 360, 210]],
-      "young_woman": [[76, 20, 478, 720]]
-    }
-    ```
-```
-    """
-    refined_content = FocusPointManager().refine_content(content)
-    assert refined_content
+    main_content = FocusPointManager().get_main_content(CONTENT)
+    coord_content = FocusPointManager().get_coord_content(CONTENT, main_content)
+    print(coord_content)
+    assert coord_content
 
 
-# @pytest.mark.asyncio
-# async def test_cannot_refine_content_with_white_image():
-#     # given : 특징이 없는 흰색 이미지
-#     WHITE_IMG_PATH = os.path.abspath(os.path.join(test_img_path, "white.png"))
-#     with open(WHITE_IMG_PATH, "rb") as f:
-#         wrong_image = base64.b64encode(f.read()).decode('utf-8')
-#     # when : 파싱 요청
-#     refined_content = FocusPointManager().generate_content_and_coord(wrong_image)
-#     # then : 빈 딕셔너리 응답
-#     assert not refined_content
+@pytest.mark.asyncio
+async def test_cannot_refine_content_with_white_image():
+    # given : 특징이 없는 흰색 이미지
+    WHITE_IMG_PATH = os.path.abspath(os.path.join(test_img_path, "white.png"))
+    with open(WHITE_IMG_PATH, "rb") as f:
+        wrong_image = base64.b64encode(f.read()).decode('utf-8')
+    # then : 에러
+    with pytest.raises(FocusPointError):
+        # when : 파싱 요청
+        content_generator = FocusPointManager().generate_content_and_coord(wrong_image)
+        content = await content_generator.__anext__()
+        coord_content = await content_generator.__anext__()
+
+        assert content
+        assert coord_content
 
 
 @pytest.mark.asyncio
@@ -131,8 +148,8 @@ async def test_can_generate_content_and_coord_value_with_valid(img_data):
     # when : 생성 요청
     content_generator = FocusPointManager().generate_content_and_coord(img_data)
     content = await content_generator.__anext__()
-    refined_content = await content_generator.__anext__()
+    coord_content = await content_generator.__anext__()
 
     # then : 정상 응답
     assert content
-    assert refined_content
+    assert coord_content

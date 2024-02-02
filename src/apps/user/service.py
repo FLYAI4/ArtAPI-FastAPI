@@ -42,5 +42,5 @@ class UserService:
         user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
         user_data["_id"] = user_unique_id
         UserRepository.insert_image(session, user_data)
-        
+
         yield "stream finished"

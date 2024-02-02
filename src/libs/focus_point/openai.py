@@ -15,15 +15,25 @@ class FocusPointManager:
             }
 
     async def generate_content_and_coord(self, img_data: str = None):
-        content = await self.generate_content(img_data)
-        yield content
+        try:
+            ori_content = await self.generate_content(img_data)
+            ori_content = ori_content.replace('\n', ' ').replace('\t', '')
+            # Get main content
+            main_content = self.get_main_content(ori_content)
+            if not main_content:
+                raise FocusPointError(**FocusPointErrorCode.APIError.value)
+            yield main_content
 
-        refined_content = self.refine_content(content)
-        # 좌표를 못찾을 경우 한 번더 실행
-        if not refined_content:
-            content = self.generate_content(img_data)
-            refined_content = self.refine_content(content)
-        yield refined_content
+            # Get coord content
+            if main_content:
+                coord_content = self.get_coord_content(ori_content, main_content)
+                # 좌표를 못찾을 경우 한 번더 실행
+                if not coord_content:
+                    content = self.generate_content(img_data)
+                    coord_content = self.get_coord_content(content)
+                yield coord_content
+        except Exception as e:
+            raise FocusPointError(**FocusPointErrorCode.APIError.value, err=e)
 
     async def generate_content(self, img_data: str):
         payload = {
@@ -63,12 +73,24 @@ class FocusPointManager:
             raise FocusPointError(**FocusPointErrorCode.UnknownError.value,
                                   err=response.json()["error"])
 
-    def refine_content(self, content: str):
-        re_finded_content = content.replace('\n', ' ').replace('\t', '')
-        coord_dict = self.__extract_coord_keyword(re_finded_content)
+    def get_coord_content(self, ori_content: str, main_content: str):
+        coord_dict = self.__extract_coord_keyword(ori_content)
         if coord_dict:
-            return self.__concat_content_coord(re_finded_content, coord_dict)
+            return self.__concat_content_coord(main_content, coord_dict)
         return {}
+
+    @staticmethod
+    def get_main_content(content):
+        keyword = ':'
+        if keyword in content:
+            content = content[:content.find(keyword)].strip()
+
+        main_content = ""
+        words = ["cannot", "AI", "do not", "can't", "json", "JSON", "{", "Unfortunately", "coordinates", "However"]
+        for sentence in list(content.split(".")):
+            if not any(word in sentence for word in words):
+                main_content += sentence + "."
+        return main_content
 
     @staticmethod
     def __extract_coord_keyword(content: str):
@@ -86,18 +108,18 @@ class FocusPointManager:
             return {}
 
     @staticmethod
-    def __concat_content_coord(content: str, coord_dict: dict):
+    def __concat_content_coord(main_content: str, coord_dict: dict):
         # 설명 정제
-        keyword = ':'
-        if keyword in content:
-            re_fined_content = content[:content.find(keyword)].strip()
-        # re_fined_content = content.replace("\n", " ").strip()
+        # keyword = ':'
+        # if keyword in main_content:
+        #     re_fined_content = main_content[:main_content.find(keyword)].strip()
+        # # re_fined_content = content.replace("\n", " ").strip()
 
         response = {}
         for key, item in coord_dict.items():
             response[key] = {"coord": item, "context": ""}
 
-        for sentence in list(re_fined_content.split('. ')):
+        for sentence in list(main_content.split('. ')):
             for key in coord_dict.keys():
                 if key.replace("_", " ") in sentence:
                     response[key]["context"] += sentence + ". "

@@ -14,16 +14,18 @@ class FocusPointManager:
             "Authorization": f"Bearer {token}"
             }
 
-    def generate_content_and_coord(self, img_data: str = None):
-        content = self.generate_content(img_data)
+    async def generate_content_and_coord(self, img_data: str = None):
+        content = await self.generate_content(img_data)
+        yield content
+
         refined_content = self.refine_content(content)
         # 좌표를 못찾을 경우 한 번더 실행
         if not refined_content:
             content = self.generate_content(img_data)
             refined_content = self.refine_content(content)
-        return refined_content
+        yield refined_content
 
-    def generate_content(self, img_data: str):
+    async def generate_content(self, img_data: str):
         payload = {
             "model": "gpt-4-vision-preview",
             "messages": [

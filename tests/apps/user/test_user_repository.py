@@ -36,7 +36,7 @@ def test_user_repository_can_insert_data_with_valid(mockup):
     # when : DB에 데이터 저장
     result = UserRepository.insert_image(session, mockup)
     # then : 이미지 ID 반환
-    assert result.inserted_id == user_unique_id
+    assert result == user_unique_id
 
 
 # @pytest.mark.order(2)

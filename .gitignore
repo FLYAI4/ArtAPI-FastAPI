@@ -8,3 +8,4 @@ htmlcov
 .env
 ./.coverage
 storage
+*.mp4

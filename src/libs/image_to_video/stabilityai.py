@@ -21,17 +21,17 @@ class VideoManager:
     def generate_video_content(self):
         # resize image to 768 * 768
         resize_image_path = self.resize_image("origin_img.jpg")
-        
+
         # Request post video creation from stability ai
         response = self.post_generated_video(resize_image_path)
         generated_id = response.json()["id"]
-        
+
         # Request get generated_video from stability ai
         origin_video_path = self.get_generated_video(generated_id, "origin_video.mp4")
-        
+
         # Reverse playback to extend video length with openCV
         reversed_video_path = self.reverse_generated_video(origin_video_path, "reversed_video.mp4")
-        
+
         # Play slowly to increase video length
         slow_video_path = self.slow_generated_video(reversed_video_path, "slow_video.mp4")
         return slow_video_path
@@ -113,8 +113,8 @@ class VideoManager:
             # flag에 status code 할당
             flag = response.status_code
             if flag == 202:
-                print("Generation in-progress... automatically try again after 3 sec.")
-                time.sleep(3)
+                print("Generation in-progress... automatically try again after 5 sec.")
+                time.sleep(5)
             elif flag == 200:
                 print("Generation complete")
                 with open(origin_video_path, 'wb') as file:

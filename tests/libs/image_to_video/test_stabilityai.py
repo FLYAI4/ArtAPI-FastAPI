@@ -37,30 +37,30 @@ async def test_can_resize_image():
     # then : 이미지 저장 파일 확인
     assert os.path.exists(resize_image_path)
 
-# # TODO: token 사용량 때문에 실행 제외
-# # @pytest.mark.order(2)
-# # @pytest.mark.asyncio
-# # async def test_can_request_generate_video():
-# #     # given : 유효한 토큰 + 이미지
-# #     # RESIZED_IMAGE_PATH = os.path.abspath(os.path.join(test_img_folder_path, "resized_img.jpg"))
-# #     # when : 비디오 생성 요청
-# #     response = VideoManager(test_img_folder_path).post_generated_video("resized_img.jpg")
-# #     print(response.json())
-# #     assert response.status_code == 200
-# #     assert len(response.json()["id"]) > 0
+# # # TODO: token 사용량 때문에 실행 제외
+# # # @pytest.mark.order(2)
+# # # @pytest.mark.asyncio
+# # # async def test_can_request_generate_video():
+# # #     # given : 유효한 토큰 + 이미지
+# # #     # RESIZED_IMAGE_PATH = os.path.abspath(os.path.join(test_img_folder_path, "resized_img.jpg"))
+# # #     # when : 비디오 생성 요청
+# # #     response = VideoManager(test_img_folder_path).post_generated_video("resized_img.jpg")
+# # #     print(response.json())
+# # #     assert response.status_code == 200
+# # #     assert len(response.json()["id"]) > 0
 
-# # @pytest.mark.order(2)
-# # @pytest.mark.asyncio
-# # async def test_cannot_request_generate_video_with_non_token():
-# #     # given : 잘못된 토큰 + 이미지
-# #     NO_TOKEN_ID_KEY = "wrong_token"
+# # # @pytest.mark.order(2)
+# # # @pytest.mark.asyncio
+# # # async def test_cannot_request_generate_video_with_non_token():
+# # #     # given : 잘못된 토큰 + 이미지
+# # #     NO_TOKEN_ID_KEY = "wrong_token"
 
-# #     # then : error
-# #     with pytest.raises(ImageToVideoError):
-# #         # when : 비디오 생성 요청
-# #         response = VideoManager(test_img_folder_path,
-# #                                 token=NO_TOKEN_ID_KEY).post_generated_video("resized_img.jpg")
-# #         assert response.status_code == 200
+# # #     # then : error
+# # #     with pytest.raises(ImageToVideoError):
+# # #         # when : 비디오 생성 요청
+# # #         response = VideoManager(test_img_folder_path,
+# # #                                 token=NO_TOKEN_ID_KEY).post_generated_video("resized_img.jpg")
+# # #         assert response.status_code == 200
 
 
 @pytest.mark.order(3)
@@ -102,11 +102,10 @@ async def test_can_slow_generated_video():
     assert os.path.exists(slow_video_path)
 
 # @pytest.mark.order(6)
-# @pytest.mark.asyncio
-# async def test_can_generate_video_content():
+# def test_can_generate_video_content():
 #     all_paths = [RESIZED_IMAGE_PATH, GENERATE_ORIGIN_VIDEO_PATH, REVERSED_VIDEO_PATH, SLOW_VIDEO_PATH]
 #     for path in all_paths:
 #         await delete_file(path)
-#     slow_video_path = VideoManager(test_img_folder_path).generate_video_content()
+#     slow_video_path = await VideoManager(test_img_folder_path).generate_video_content()
     
 #     assert slow_video_path == os.path.abspath(os.path.join(test_img_folder_path, "slow_video.mp4"))

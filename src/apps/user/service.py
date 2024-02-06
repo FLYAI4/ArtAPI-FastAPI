@@ -1,10 +1,12 @@
 import base64
 import os
+import io
 from pymongo import MongoClient
 from bson.binary import Binary
 from fastapi import UploadFile
 from src.apps.user.repository import UserRepository
 from src.apps.user.model import UserGeneratedInfo
+from src.libs.image_to_video.stabilityai import VideoManager
 from src.libs.focus_point.openai import FocusPointManager
 from src.libs.api.util import (
     generate_unique_id,
@@ -38,9 +40,21 @@ class UserService:
         coord_content = await content_generator.__anext__()
         yield f"coord: {str(coord_content)}\n".encode()
 
+        # TODO: Demo 끝나면 저장하도록 수정 + PostgreSQL
         # Save user_data to MongoDB user_genreated document
-        user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
-        user_data["_id"] = user_unique_id
-        UserRepository.insert_image(session, user_data)
-
+        # user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
+        # user_data["_id"] = user_unique_id
+        # UserRepository.insert_image(session, user_data)
         yield "stream finished"
+
+        await VideoManager(user_path).generate_video_content()
+        
+    def get_video(user_unique_id: str):
+        storage_path = find_storage_path()
+        user_path = os.path.abspath(os.path.join(storage_path, user_unique_id))
+        user_file_path = os.path.abspath(os.path.join(user_path, "slow_video.mp4"))
+        
+        with open(user_file_path, mode="rb") as video_file:
+            # Read the contents of the video file
+            video_contents = video_file.read()
+            return io.BytesIO(video_contents)

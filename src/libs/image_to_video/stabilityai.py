@@ -18,7 +18,7 @@ class VideoManager:
         self.cfg_scale = 2.5
         self.motion_bucket_id = 40
 
-    def generate_video_content(self):
+    async def generate_video_content(self):
         # resize image to 768 * 768
         resize_image_path = self.resize_image("origin_img.jpg")
 
@@ -49,6 +49,7 @@ class VideoManager:
         # origin image
         origin_img_path = os.path.abspath(os.path.join(self.user_folder_path, origin_img_name))
         image = Image.open(origin_img_path)
+        image = image.convert("RGB")
 
         # resize
         resized_image_path = os.path.abspath(os.path.join(self.user_folder_path, "resized_img.jpg"))

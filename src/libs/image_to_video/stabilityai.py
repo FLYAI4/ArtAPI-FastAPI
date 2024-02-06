@@ -6,6 +6,7 @@ from PIL import Image
 from src.libs.api.exception import ImageToVideoError
 from src.libs.api.error_code import ImageToVideoErrorCode
 
+
 class VideoManager:
     def __init__(self, user_folder_path: str,
                  token: str = os.environ.get("STABILITY_AI_TOKEN_KEY", 'utf-8')

@@ -58,3 +58,21 @@ class UserService:
             # Read the contents of the video file
             video_contents = video_file.read()
             return io.BytesIO(video_contents)
+
+    async def generate_content_with_image_demo(user_unique_id: str):
+        text_content = "Vincent van Gogh was a Dutch post-impressionist painter who is among the most famous and influential figures in the history of Western art. He was born on March 30, 1853, and passed away on July 29, 1890. Despite that, his fame grew posthumously, and his works became celebrated for their emotional honesty, bold color, and innovative application of paint.  Van Gogh worked with a variety of media, including oil on canvas, and he is known for his expressive and emotive use of vibrant color and energetic application of impastoed paint. His style, while grounded in impressionism, moved toward what would become known as expressionism.  His influences ranged widely, from the realism of Millet to the impressionistic light and color of the Paris art scene. Japanese prints also influenced his work, which can be seen in his use of color and compositions.  \"The Starry Night,\" one of Van Gogh's most famous works, depicts a swirling night sky filled with yellow, glowing stars over a small village. It features a prominent cypress tree in the foreground, which could symbolize death, eternal life, or both, as cypresses are often found in cemeteries and yet are also evergreen. The swirling patterns of the sky create a dynamic movement, conveying deep emotional resonance, where the night sky becomes a field of roiling energy."
+        yield f"content: {text_content}\n".encode()
+        coord_content = "{'starry_sky': {'coord': [[0, 0, 600, 250]], 'context': ' \"The Starry Night,\" one of Van Gogh\'s most famous works, depicts a swirling night sky filled with yellow, glowing stars over a small village. '}, 'cypress_tree': {'coord': [[200, 290, 250, 475]], 'context': 'It features a prominent cypress tree in the foreground, which could symbolize death, eternal life, or both, as cypresses are often found in cemeteries and yet are also evergreen. '}, 'village': {'coord': [[10, 370, 400, 475]], 'context': ' \"The Starry Night,\" one of Van Gogh\'s most famous works, depicts a swirling night sky filled with yellow, glowing stars over a small village. '}}"
+        yield f"coord: {str(coord_content)}\n".encode()
+
+        yield "stream finished"
+
+    def get_video_demo(user_unique_id: str):
+        user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+        demo_path = os.path.abspath(os.path.join(user_path, "demo"))
+        user_file_path = os.path.abspath(os.path.join(demo_path, "slow_video.mp4"))
+
+        with open(user_file_path, mode="rb") as video_file:
+            # Read the contents of the video file
+            video_contents = video_file.read()
+            return io.BytesIO(video_contents)

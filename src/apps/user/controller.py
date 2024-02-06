@@ -40,3 +40,11 @@ async def make_generated_content_demo(
 ):
     return StreamingResponse(UserService.generate_content_with_image_demo(payload.generated_id),
                              media_type="text/event-stream")
+
+
+@user.post('/video/demo')
+async def get_video_content_demo(
+    payload: UserImagePayload,
+):
+    video_contents = UserService.get_video_demo(payload.generated_id)
+    return StreamingResponse(video_contents, media_type="video/mp4")

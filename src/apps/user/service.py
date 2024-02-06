@@ -66,3 +66,13 @@ class UserService:
         yield f"coord: {str(coord_content)}\n".encode()
 
         yield "stream finished"
+
+    def get_video_demo(user_unique_id: str):
+        user_path = os.path.abspath(os.path.join(__file__, os.path.pardir))
+        demo_path = os.path.abspath(os.path.join(user_path, "demo"))
+        user_file_path = os.path.abspath(os.path.join(demo_path, "slow_video.mp4"))
+
+        with open(user_file_path, mode="rb") as video_file:
+            # Read the contents of the video file
+            video_contents = video_file.read()
+            return io.BytesIO(video_contents)

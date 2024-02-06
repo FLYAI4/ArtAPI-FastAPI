@@ -64,5 +64,18 @@ class FocusPointErrorCode(Enum):
     APIError = {
         "code": 500,
         "message": "Failed to request. Contact service administrator.",
-        "log": "API Error. Please check api."
+        "log": "Focus Point API Error. Please check api."
+    }
+
+
+class ImageToVideoErrorCode(Enum):
+    NonTokenError = {
+        "code": 400,
+        "message": "Failed to connect. Contact service administrator.",
+        "log": "Image to Video API request error with non token. Please purchase token."
+    }
+    APIError = {
+        "code": 500,
+        "message": "Failed to request. Contact service administrator.",
+        "log": "Image to Video API Error. Please check api."
     }

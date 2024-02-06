@@ -97,15 +97,15 @@ SLOW_VIDEO_PATH = os.path.abspath(os.path.join(test_img_folder_path, "slow_video
 #         assert response.status_code == 200
 
 
-@pytest.mark.order(3)
-def test_can_get_generated_video():
-    # given : 생성된 비디오 요청 id
-    # when : 비디오 전달 요청
-    generated_origin_path = VideoManager(
-        test_img_folder_path).get_generated_video(GENERATED_ID, "origin_video.mp4")
+# @pytest.mark.order(3)
+# def test_can_get_generated_video():
+#     # given : 생성된 비디오 요청 id
+#     # when : 비디오 전달 요청
+#     generated_origin_path = VideoManager(
+#         test_img_folder_path).get_generated_video(GENERATED_ID, "origin_video.mp4")
 
-    # then : 비디오 전달 확인
-    assert os.path.exists(generated_origin_path)
+#     # then : 비디오 전달 확인
+#     assert os.path.exists(generated_origin_path)
 
 # def reverse_generated_video(output_video: cv2.VideoWriter, reverse: bool = False):
 #     # 비디오 캡쳐 객체 생성
@@ -128,50 +128,23 @@ def test_can_get_generated_video():
 #     cap.release()
 
 
+# @pytest.mark.order(4)
 # def test_can_reverse_generated_video():
 #     # given : 유효한 비디오 파일
 #     # when : 비디오 파일 역 재생 및 연결
 #     # 비디오 속성 가져오기
-#     cap = cv2.VideoCapture(GENERATE_ORIGIN_VIDEO_PATH)
-#     frame_width = int(cap.get(3))
-#     frame_height = int(cap.get(4))
-#     fps = int(cap.get(5))
-
-#     # 비디오 작성 객체 생성
-#     out = cv2.VideoWriter(REVERSED_VIDEO_PATH, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
-#     reverse_generated_video(out, reverse=False)
-#     reverse_generated_video(out, reverse=True)
+#     reversed_video_path = VideoManager(test_img_folder_path).reverse_generated_video(GENERATE_ORIGIN_VIDEO_PATH, "reversed_video.mp4")
 
 #     # then : 비디오 파일 유효성 확인
-#     assert os.path.exists(REVERSED_VIDEO_PATH)
+#     assert os.path.exists(reversed_video_path)
 
 
-# def test_can_slow_generated_video():
-#     # given : 유효한 비디오 파일
+@pytest.mark.order(5)
+def test_can_slow_generated_video():
+    # given : 유효한 비디오 파일
+    # when : 비디오 파일 역 재생 및 연결
+    # 비디오 속성 가져오기
+    slow_video_path = VideoManager(test_img_folder_path).slow_generated_video(REVERSED_VIDEO_PATH, "slow_video.mp4")
 
-#     # when : 비디오 파일 느리게
-#     # 비디오 캡쳐 객체 생성
-#     cap = cv2.VideoCapture(REVERSED_VIDEO_PATH)
-
-#     # 비디오 속성 가져오기
-#     frame_width = int(cap.get(3))
-#     frame_height = int(cap.get(4))
-#     fps = int(cap.get(5))
-
-#     # 비디오 작성 객체 생성
-#     slow_video = cv2.VideoWriter(SLOW_VIDEO_PATH, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
-
-#     # 비디오 재생
-#     while cap.isOpened():
-#         ret, frame = cap.read()
-#         if not ret:
-#             break
-
-#         # 출력 비디오에 현재 프레임을 두 번 씩 작성
-#         slow_video.write(frame)
-#         slow_video.write(frame)
-
-#     cap.release()
-
-#     # then : 비디오 파일 유효성 확인
-#     assert os.path.exists(SLOW_VIDEO_PATH)
+    # then : 비디오 파일 유효성 확인
+    assert os.path.exists(slow_video_path)

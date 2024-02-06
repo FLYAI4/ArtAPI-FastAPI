@@ -1,4 +1,5 @@
 import os
+import cv2
 import requests
 import time
 from PIL import Image
@@ -21,6 +22,9 @@ class VideoManager:
         response = self.post_generated_video(resize_image_path)
         generated_id = response.json()["id"]
         origin_video_path = self.get_generated_video(generated_id, "origin_video.mp4")
+        reversed_video_path = self.reverse_generated_video(origin_video_path, "reversed_video.mp4")
+        slow_video_path = self.slow_generated_video(reversed_video_path, "slow_video.mp4")
+        return slow_video_path
 
     def resize_image(self, origin_img_name: str):
         # base image
@@ -81,3 +85,63 @@ class VideoManager:
             else:
                 raise Exception("Non-200 response : " + str(response.json()))
         return origin_video_path
+
+    def reverse_generated_video(
+        self,
+        origin_video_path: str,
+        reverse_video_name: str
+    ):
+        reversed_video_path = os.path.abspath(os.path.join(self.user_folder_path, reverse_video_name))
+        video = self.__set_video_object(origin_video_path, reversed_video_path)
+        video = self.__play_video(origin_video_path, video, reverse=False)
+        self.__play_video(origin_video_path, video, reverse=True)
+
+        return reversed_video_path
+
+    def slow_generated_video(
+        self,
+        reversed_video_path: str,
+        slow_video_name: str
+    ):
+        slow_video_path = os.path.abspath(os.path.join(self.user_folder_path, slow_video_name))
+        video = self.__set_video_object(reversed_video_path, slow_video_path)
+        self.__play_video(reversed_video_path, video, double=True)
+        return slow_video_path
+
+    def __play_video(
+        self,
+        video_path: str,
+        output_video: cv2.VideoWriter,
+        reverse: bool = False,
+        double: bool = False
+    ):
+        # 비디오 캡쳐 객체 생성
+        cap = cv2.VideoCapture(video_path)
+        # 비디오 재생
+        frames = []
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+            # 출력 비디오에 현재 프레임 쓰기
+            frames.append(frame)
+            if double:
+                frames.append(frame)
+
+        if reverse:
+            frames = reversed(frames)
+
+        for frame in frames:
+            output_video.write(frame)
+
+        # 비디오 역재생을 위해 비디오 캡쳐 객체 초기화
+        cap.release()
+        return output_video
+
+    def __set_video_object(self, input_video_path: str, output_video_path: str):
+        cap = cv2.VideoCapture(input_video_path)
+        frame_width = int(cap.get(3))
+        frame_height = int(cap.get(4))
+        fps = int(cap.get(5))
+
+        return cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))

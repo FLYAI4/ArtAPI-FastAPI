@@ -43,6 +43,16 @@ class UserRequestErrorCode(Enum):
         "message": "The password is incorrect. Please check again..",
         "log": "User request fail with wrong password."
     }
+    NonTokenError = {
+        "code": 401,
+        "message": "The token is not existence. Please log in again.",
+        "log": "User request fail with non token."
+    }
+    WrongTokenError = {
+        "code": 401,
+        "message": "The token is wrong. Please log in again.",
+        "log": "User request fail with wrong token."
+    }
 
 
 class FocusPointErrorCode(Enum):

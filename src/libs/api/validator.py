@@ -4,6 +4,7 @@ from src.libs.api.exception import UserError
 from src.libs.cipher import CipherManager
 from src.libs.api.error_code import UserRequestErrorCode
 from src.apps.account.repository import AccountRepository
+from src.libs.token import TokenManager
 
 
 class ApiValidator:
@@ -33,3 +34,16 @@ class ApiValidator:
         origin_password = CipherManager().decrypt_password(encrypt_password)
         if user_password != origin_password:
             raise UserError(**UserRequestErrorCode.WrongPasswordError.value)
+
+    def check_valid_token(id: str, token: str):
+        """Check valid token."""
+        if not token:
+            raise UserError(**UserRequestErrorCode.NonTokenError.value)
+
+        try:
+            decode_token = TokenManager().decode_token(token)
+            # unmatch id and token["id"]
+            if id != decode_token["id"]:
+                raise UserError(**UserRequestErrorCode.WrongTokenError.value)
+        except Exception:
+            raise UserError(**UserRequestErrorCode.WrongTokenError.value)

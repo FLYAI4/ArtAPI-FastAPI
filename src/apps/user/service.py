@@ -40,7 +40,7 @@ class UserService:
         coord_content = await content_generator.__anext__()
         yield f"coord: {str(coord_content)}\n".encode()
 
-        # TODO: Demo 끝나면 저장하도록 수정 + PostgreSQL
+        # TODO: Demo 끝나면 MongoDB 저장하도록 수정 + PostgreSQL
         # Save user_data to MongoDB user_genreated document
         # user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
         # user_data["_id"] = user_unique_id

@@ -1,6 +1,7 @@
 from pymongo import MongoClient
+from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, UploadFile, File, Header
-from src.libs.db_manager import MongoManager
+from src.libs.db_manager import MongoManager, PostgreManager
 from src.apps.user.service import UserService
 from src.libs.api.validator import ApiValidator
 from src.libs.api.util import make_response
@@ -25,11 +26,16 @@ async def make_generated_content(
     payload: UserImagePayload,
     id: str = Header(),
     token: str = Header(),
-    session: MongoClient = Depends(MongoManager().get_session),
+    postgre_session: Session = Depends(PostgreManager().get_session),
+    mongo_session: MongoClient = Depends(MongoManager().get_session),
 ):
     ApiValidator.check_valid_token(id, token)
     return StreamingResponse(UserService.generate_content_with_image(
-        session, payload.generated_id), media_type="text/event-stream")
+        postgre_session,
+        mongo_session,
+        id,
+        payload.generated_id),
+        media_type="text/event-stream")
 
 
 @user.post('/video')

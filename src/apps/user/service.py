@@ -4,6 +4,7 @@ import io
 from pymongo import MongoClient
 from bson.binary import Binary
 from fastapi import UploadFile
+from sqlalchemy.orm import Session
 from src.apps.user.repository import UserRepository
 from src.apps.user.model import UserGeneratedInfo
 from src.libs.image_to_video.stabilityai import VideoManager
@@ -23,7 +24,9 @@ class UserService:
         return {"generated_id": user_unique_id}
 
     async def generate_content_with_image(
-        session: MongoClient,
+        postgre_session: Session,
+        mongo_session: MongoClient,
+        id: str,
         user_unique_id: str
     ):
         # Load images from local server
@@ -56,10 +59,12 @@ class UserService:
                                       text_content=str(text_content),
                                       coord_content=str(coord_content)).model_dump()
         user_data["_id"] = user_unique_id
-        UserRepository.insert_image(session, user_data)
+        UserRepository.insert_image(mongo_session, user_data)
         yield "stream finished"
 
-        # await VideoManager(user_path).generate_video_content()
+        UserRepository.insert_generated_id(postgre_session, id, user_unique_id)
+
+        await VideoManager(user_path).generate_video_content()
         
     def get_video(user_unique_id: str):
         storage_path = find_storage_path()

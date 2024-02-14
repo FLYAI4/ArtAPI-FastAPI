@@ -19,6 +19,13 @@ class ApiValidator:
         all_user_account = AccountRepository.get_all_user_account(session)
         if user_id in all_user_account:
             raise UserError(**UserRequestErrorCode.AlreadyUserError.value)
+        
+        # @ 앞에 동일한 아이디 만들지 못하도록 제한!!
+        user_id_prefix = user_id.split("@")[0]
+        for id in all_user_account:
+            id_prefix = id.split("@")[0]
+            if user_id_prefix == id_prefix:
+                raise UserError(**UserRequestErrorCode.AlreadyUserError.value)
 
     def check_user_id(session: Session, user_id: str):
         """Check user is registed."""

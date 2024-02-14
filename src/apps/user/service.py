@@ -13,6 +13,7 @@ from src.libs.api.util import (
     save_file_local,
     find_storage_path
     )
+from PIL import Image
 
 
 class UserService:
@@ -29,9 +30,18 @@ class UserService:
         storage_path = find_storage_path()
         user_path = os.path.abspath(os.path.join(storage_path, user_unique_id))
         user_file_path = os.path.abspath(os.path.join(user_path, "origin_img.jpg"))
-        with open(user_file_path, "rb") as f:
-            base64_img = base64.b64encode(f.read()).decode('utf-8')
-            origin_img = Binary(f.read())
+
+
+        # with open(user_file_path, "rb") as f:
+        #     base64_img = base64.b64encode(f.read()).decode('utf-8')
+        #     # origin_img = Binary(f.read())
+
+        # image compress
+        img = Image.open(user_file_path)
+        output = io.BytesIO()
+        img.convert("RGB").save(output, format='JPEG', quality=50)
+        output.seek(0)
+        base64_img = base64.b64encode(output.read()).decode('utf-8')
 
         # Generate content and coordinate value
         content_generator = FocusPointManager().generate_content_and_coord(base64_img)
@@ -42,12 +52,14 @@ class UserService:
 
         # TODO: Demo 끝나면 MongoDB 저장하도록 수정 + PostgreSQL
         # Save user_data to MongoDB user_genreated document
-        # user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
-        # user_data["_id"] = user_unique_id
-        # UserRepository.insert_image(session, user_data)
+        user_data = UserGeneratedInfo(origin_img=base64_img,
+                                      text_content=str(text_content),
+                                      coord_content=str(coord_content)).model_dump()
+        user_data["_id"] = user_unique_id
+        UserRepository.insert_image(session, user_data)
         yield "stream finished"
 
-        await VideoManager(user_path).generate_video_content()
+        # await VideoManager(user_path).generate_video_content()
         
     def get_video(user_unique_id: str):
         storage_path = find_storage_path()

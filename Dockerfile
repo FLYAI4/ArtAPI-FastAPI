@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:23.10
 
 # Args
 ARG EXPOSE_PORT=8000
@@ -8,7 +8,8 @@ ARG CONDA_DIR=/opt/conda
 USER root
 
 # install requirements libarary
-RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get -y update
+RUN apt-get -y upgrade
 RUN apt-get install -y --no-install-recommends
 RUN apt-get install -y python3-dev python3-pip && apt install curl -y
 # RUN apt-get update && apt-get install libgl1-mesa-glx -y 

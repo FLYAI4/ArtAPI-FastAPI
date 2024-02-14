@@ -2,8 +2,8 @@ import base64
 import os
 import io
 from pymongo import MongoClient
-from bson.binary import Binary
 from fastapi import UploadFile
+from sqlalchemy.orm import Session
 from src.apps.user.repository import UserRepository
 from src.apps.user.model import UserGeneratedInfo
 from src.libs.image_to_video.stabilityai import VideoManager
@@ -13,6 +13,7 @@ from src.libs.api.util import (
     save_file_local,
     find_storage_path
     )
+from PIL import Image
 
 
 class UserService:
@@ -22,16 +23,27 @@ class UserService:
         return {"generated_id": user_unique_id}
 
     async def generate_content_with_image(
-        session: MongoClient,
+        postgre_session: Session,
+        mongo_session: MongoClient,
+        id: str,
         user_unique_id: str
     ):
         # Load images from local server
         storage_path = find_storage_path()
         user_path = os.path.abspath(os.path.join(storage_path, user_unique_id))
         user_file_path = os.path.abspath(os.path.join(user_path, "origin_img.jpg"))
-        with open(user_file_path, "rb") as f:
-            base64_img = base64.b64encode(f.read()).decode('utf-8')
-            origin_img = Binary(f.read())
+
+
+        # with open(user_file_path, "rb") as f:
+        #     base64_img = base64.b64encode(f.read()).decode('utf-8')
+        #     # origin_img = Binary(f.read())
+
+        # image compress
+        img = Image.open(user_file_path)
+        output = io.BytesIO()
+        img.convert("RGB").save(output, format='JPEG', quality=50)
+        output.seek(0)
+        base64_img = base64.b64encode(output.read()).decode('utf-8')
 
         # Generate content and coordinate value
         content_generator = FocusPointManager().generate_content_and_coord(base64_img)
@@ -40,12 +52,15 @@ class UserService:
         coord_content = await content_generator.__anext__()
         yield f"coord: {str(coord_content)}\n".encode()
 
-        # TODO: Demo 끝나면 저장하도록 수정 + PostgreSQL
         # Save user_data to MongoDB user_genreated document
-        # user_data = UserGeneratedInfo(origin_img=origin_img).model_dump()
-        # user_data["_id"] = user_unique_id
-        # UserRepository.insert_image(session, user_data)
+        user_data = UserGeneratedInfo(origin_img=base64_img,
+                                      text_content=str(text_content),
+                                      coord_content=str(coord_content)).model_dump()
+        user_data["_id"] = user_unique_id
+        UserRepository.insert_image(mongo_session, user_data)
         yield "stream finished"
+
+        UserRepository.insert_generated_id(postgre_session, id, user_unique_id)
 
         await VideoManager(user_path).generate_video_content()
         

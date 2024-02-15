@@ -8,13 +8,15 @@ from src.apps.user.repository import UserRepository
 from src.apps.user.model import UserGeneratedInfo
 from src.libs.image_to_video.stabilityai import VideoManager
 from src.libs.focus_point.openai import FocusPointManager
+from src.libs.go_grpc import GoGrpcManager
 from src.libs.api.util import (
     generate_unique_id,
     save_file_local,
     find_storage_path
     )
 from PIL import Image
-
+import grpc
+from src.libs.pb import stream_pb2, stream_pb2_grpc
 
 class UserService:
     def insert_image(id: str, img_file: UploadFile):
@@ -38,31 +40,46 @@ class UserService:
         #     base64_img = base64.b64encode(f.read()).decode('utf-8')
         #     # origin_img = Binary(f.read())
 
+        
+        
+        # Generate content and coordinate value
+        with grpc.insecure_channel('localhost:50051') as channel:
+            stub = stream_pb2_grpc.StreamServiceStub(channel)
+            with open(user_file_path, "rb") as f:
+                request = stream_pb2.Request(
+                    image=f.read(),
+                    id=user_unique_id
+                )
+            responses = stub.GeneratedContentStream(request)
+            for response in responses:
+                yield f"{response.tag}: {response.data}\n".encode()
+
+        # responses = GoGrpcManager.request_generate_content(output.read(), user_unique_id)
+
+        # content_generator = FocusPointManager().generate_content_and_coord(base64_img)
+        # text_content = await content_generator.__anext__()
+        # yield f"content: {text_content}\n".encode()
+        # coord_content = await content_generator.__anext__()
+        # yield f"coord: {str(coord_content)}\n".encode()
+
         # image compress
         img = Image.open(user_file_path)
         output = io.BytesIO()
         img.convert("RGB").save(output, format='JPEG', quality=50)
         output.seek(0)
         base64_img = base64.b64encode(output.read()).decode('utf-8')
+        
+        # # Save user_data to MongoDB user_genreated document
+        # user_data = UserGeneratedInfo(origin_img=base64_img,
+        #                               text_content=str(text_content),
+        #                               coord_content=str(coord_content)).model_dump()
+        # user_data["_id"] = user_unique_id
+        # UserRepository.insert_image(mongo_session, user_data)
+        # yield "stream finished"
 
-        # Generate content and coordinate value
-        content_generator = FocusPointManager().generate_content_and_coord(base64_img)
-        text_content = await content_generator.__anext__()
-        yield f"content: {text_content}\n".encode()
-        coord_content = await content_generator.__anext__()
-        yield f"coord: {str(coord_content)}\n".encode()
+        # UserRepository.insert_generated_id(postgre_session, id, user_unique_id)
 
-        # Save user_data to MongoDB user_genreated document
-        user_data = UserGeneratedInfo(origin_img=base64_img,
-                                      text_content=str(text_content),
-                                      coord_content=str(coord_content)).model_dump()
-        user_data["_id"] = user_unique_id
-        UserRepository.insert_image(mongo_session, user_data)
-        yield "stream finished"
-
-        UserRepository.insert_generated_id(postgre_session, id, user_unique_id)
-
-        await VideoManager(user_path).generate_video_content()
+        # await VideoManager(user_path).generate_video_content()
         
     def get_video(user_unique_id: str):
         storage_path = find_storage_path()

@@ -1,5 +1,71 @@
 # ArtAPI-FastAPI
-프로젝트 API 백엔드 서버 repo
+- ArtCore-FastAPI is a FastAPI server that handles the service.
+- It utilizes PostgreSQL and MongoDB for data storage
+- It communicates with the Go core server through gRPC.
+
+<br>
+
+## Getting Started
+
+To run the service, follow the instructions below:
+
+1. Clone the repository:
+
+```sh
+git clone https://github.com/robert-min/ArtCore-FastAPI.git
+```
+
+2. Navigate to the project directory:
+
+```sh
+cd ArtCore-FastAPI
+```
+
+3. Install the dependencies:
+
+```sh
+pip install -r requirements.txt
+```
+
+4. Run the server:
+- add src/libs/.env
+
+```sh
+python app.py
+```
+
+<br>
+
+
+## Contributing
+
+Contributions are welcome! If you would like to contribute to ArtCore-Go, please follow these steps:
+
+1. Fork the repository.
+
+2. Create a new branch:
+
+```sh
+git checkout -b my-feature
+```
+
+
+3. Make your changes and commit them:
+
+```sh
+git commit -m "Add my feature"
+```
+
+4. Push to your forked repository:
+
+```sh
+git push origin my-feature
+```
+
+5. Open a pull request. 
+
+<br>
+
 
 [![codecov](https://codecov.io/gh/robert-min/ArtAPI-FastAPI/graph/badge.svg?token=2MUZJH61VC)](https://codecov.io/gh/robert-min/ArtAPI-FastAPI)
 
@@ -43,5 +109,7 @@ tests/libs/test_util.py                            24      0   100%
 -------------------------------------------------------------------
 TOTAL                                             620     26    96%
 ```
+
+<br>
 
 ![graph](https://codecov.io/gh/robert-min/ArtAPI-FastAPI/graphs/tree.svg?token=2MUZJH61VC)

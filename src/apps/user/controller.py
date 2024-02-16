@@ -65,5 +65,4 @@ async def get_video_content_demo(
     id: str = Header(),
     token: str = Header(),
 ):
-    video_contents = UserService.get_video_demo(payload.generated_id)
-    return StreamingResponse(video_contents, media_type="video/mp4")
+    return StreamingResponse(UserService.get_video_demo(payload.generated_id), media_type="video/mp4")

@@ -19,6 +19,11 @@ class StreamServiceStub(object):
                 request_serializer=stream__pb2.Request.SerializeToString,
                 response_deserializer=stream__pb2.Response.FromString,
                 )
+        self.VideoContentStream = channel.unary_stream(
+                '/pb.StreamService/VideoContentStream',
+                request_serializer=stream__pb2.VideoRequest.SerializeToString,
+                response_deserializer=stream__pb2.Response.FromString,
+                )
 
 
 class StreamServiceServicer(object):
@@ -31,12 +36,24 @@ class StreamServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def VideoContentStream(self, request, context):
+        """video content method
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StreamServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GeneratedContentStream': grpc.unary_stream_rpc_method_handler(
                     servicer.GeneratedContentStream,
                     request_deserializer=stream__pb2.Request.FromString,
+                    response_serializer=stream__pb2.Response.SerializeToString,
+            ),
+            'VideoContentStream': grpc.unary_stream_rpc_method_handler(
+                    servicer.VideoContentStream,
+                    request_deserializer=stream__pb2.VideoRequest.FromString,
                     response_serializer=stream__pb2.Response.SerializeToString,
             ),
     }
@@ -62,6 +79,23 @@ class StreamService(object):
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/pb.StreamService/GeneratedContentStream',
             stream__pb2.Request.SerializeToString,
+            stream__pb2.Response.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def VideoContentStream(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/pb.StreamService/VideoContentStream',
+            stream__pb2.VideoRequest.SerializeToString,
             stream__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
